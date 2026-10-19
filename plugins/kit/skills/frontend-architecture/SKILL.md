@@ -14,14 +14,15 @@ react-hook-form with Zod 4, zustand, sonner, Vitest with msw, Oxlint. Every
 path below is relative to `apps/web/src` unless it says otherwise.
 
 The rules below and the files in `references/` are the whole spec. The
-reference implementation lives in `references/reference-implementation.md`.
+reference implementation lives in the `references/example-*.md` files, starting
+with `references/example-overview.md`.
 
 ## How to use this skill
 
 1. Read the rules below. They are short and every one of them is load-bearing.
-2. Open `references/reference-implementation.md` and read the sections matching
-   what you are building. Adding a query? Read the API layer section. Building a
-   full entity? Read all of it.
+2. Open the `references/example-*.md` files matching what you are building.
+   Adding a query? Read `references/example-api.md`. Building a full entity?
+   Read all of them, starting with `references/example-overview.md`.
 3. Build only what the request asks for, following the build order at the end.
 4. Run the definition-of-done list, right after the rules, before reporting
    complete.
@@ -31,17 +32,23 @@ reference implementation lives in `references/reference-implementation.md`.
 Each file below holds the detail for one area. The rules stay in this file.
 Read the file before you start work in its area, not after.
 
-| File                                     | Read it when                                                                                               |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `references/reference-implementation.md` | you build an entity, a page, a query, a mutation or a form. Read the sections that match                   |
-| `references/routing-react-router.md`     | you add or change a route, a handle, a nav entry, route access, `app/router.ts` or `app/routes.tsx`        |
-| `references/api-layer.md`                | you write an `*.api.ts`, a query or a mutation, or handle an `ApiError`                                    |
-| `references/lookups.md`                  | you add or change an enum                                                                                  |
-| `references/forms.md`                    | you build a form, add a field, or write an async options source                                            |
-| `references/filters.md`                  | you add a filter or build a filter bar                                                                     |
-| `references/tables.md`                   | you build a list page, its columns or anything around a `DataTable`                                        |
-| `references/control-sizes.md`            | you size a control or place a button beside an input                                                       |
-| `references/shared-code.md`              | you write a helper, a hook or a component that may already exist in `lib/`, `components/ui/` or `systems/` |
+| File                                         | Read it when                                                                                                    |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `references/example-overview.md`             | you build a whole feature or entity. Folder tree, build order, what was deliberately not built                  |
+| `references/example-definitions.md`          | build steps 1 to 3 and 7: lookup, types, constants and keys, schema                                             |
+| `references/example-api.md`                  | build steps 4 to 6: `*.api.ts`, queries, options source, mutations                                              |
+| `references/example-form.md`                 | build step 8: the form component. Columns and filters are inline in `references/example-pages.md`               |
+| `references/example-pages.md`                | build step 9: the list page with its columns and filters, and the form page                                     |
+| `references/example-routing-react-router.md` | build step 10: `routes.tsx`, `index.ts`, `app/router.ts`                                                        |
+| `references/example-shared.md`               | something upstream (`api-call`, `api-error`, the query client, `LookupBadge`, `systems/filters`) needs changing |
+| `references/routing-react-router.md`         | you add or change a route, a handle, a nav entry, route access, `app/router.ts` or `app/routes.tsx`             |
+| `references/api-layer.md`                    | you write an `*.api.ts`, a query or a mutation, or handle an `ApiError`                                         |
+| `references/lookups.md`                      | you add or change an enum                                                                                       |
+| `references/forms.md`                        | you build a form, add a field, or write an async options source                                                 |
+| `references/filters.md`                      | you add a filter or build a filter bar                                                                          |
+| `references/tables.md`                       | you build a list page, its columns or anything around a `DataTable`                                             |
+| `references/control-sizes.md`                | you size a control or place a button beside an input                                                            |
+| `references/shared-code.md`                  | you write a helper, a hook or a component that may already exist in `lib/`, `components/ui/` or `systems/`      |
 
 **If something you need is not covered here**, copy the nearest existing
 feature or system in the repo rather than inventing new structure, and say in
