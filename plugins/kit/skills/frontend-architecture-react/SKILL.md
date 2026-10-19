@@ -276,6 +276,7 @@ A component that receives data as props renders it. It does not check
     preview page
 16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
     never `mutation.mutate(values)`
+17. `lib/` and `systems/` import nothing from `features/`
 
 ## Import direction
 
