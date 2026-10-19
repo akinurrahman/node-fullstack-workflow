@@ -23,7 +23,8 @@ reference implementation lives in `references/reference-implementation.md`.
    what you are building. Adding a query? Read the API layer section. Building a
    full entity? Read all of it.
 3. Build only what the request asks for, following the build order at the end.
-4. Run the definition-of-done list before reporting complete.
+4. Run the definition-of-done list, right after the rules, before reporting
+   complete.
 
 ### Which reference to read
 
