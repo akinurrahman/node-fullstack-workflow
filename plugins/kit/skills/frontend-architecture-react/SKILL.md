@@ -185,7 +185,8 @@ lib/                          no react
 ├── api/auth-refresh.ts       single-flight refresh, handlers registered by auth
 ├── lookup/create-lookup.ts   createLookup, BadgeVariant
 ├── reporting/report-error.ts reportError, isUnexpectedError. The one hook for
-│                             error monitoring
+│                             error monitoring; the route error boundaries and
+│                             the query and mutation caches call it
 ├── format.ts                 formatMoney (minor units), formatNumber, getInitials
 ├── date.ts                   formatDate, formatDateTime, calendar-date helpers
 ├── env.ts                    the Zod-checked VITE_* env
@@ -423,6 +424,8 @@ global toast report it.
 so they survive any route error. Their content has no router context: no
 `Link` and no router hooks in a toast or a confirm description. Navigate from
 the callback, with a `navigate` the page already holds or `router.navigate`.
+Deferred callbacks (toast actions, timeouts) use absolute paths, since a
+relative path resolves against wherever the user is by then.
 
 ## Routing
 
