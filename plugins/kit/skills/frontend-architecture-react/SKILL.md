@@ -649,3 +649,5 @@ For each entity, skipping anything the request does not need:
 14. The done check in `references/routing-react-router.md` passes
 15. Any new piece in `components/ui` or `systems` has its section on the theme
     preview page
+16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
+    never `mutation.mutate(values)`
