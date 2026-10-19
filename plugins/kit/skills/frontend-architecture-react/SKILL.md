@@ -45,8 +45,8 @@ Read the file before you start work in its area, not after.
 **If something you need is not covered here**, copy the nearest existing
 feature or system in the repo rather than inventing new structure, and say in
 your summary which one you copied and why. Do not add a new top-level folder.
-Where this file and the code disagree, the code wins: fix this file in the same
-change.
+When the code and this skill disagree, follow the code and flag the mismatch so
+the skill gets fixed in the kit repo.
 
 ## Two kinds of rule
 
