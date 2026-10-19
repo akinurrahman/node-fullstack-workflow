@@ -1,24 +1,41 @@
 // Usage: node scripts/check-skill-coverage.mjs <baseline commit> [--allow <allowlist.md>] [--replaced <replaced.md>] <file>...
+//    or: node scripts/check-skill-coverage.mjs <baseline commit> [--allow ...] [--replaced ...] --baseline <old>... --files <new>...
 // Baseline: the given files as they were at <baseline commit> (files missing there are skipped).
+// With --baseline and --files, the baseline is the --baseline files at <baseline commit> (each must exist
+// there) and the new files are the --files files, so a split or rename can be checked.
 // Forward: every unit of the baseline exists in the files now, or is declared replaced.
 // Reverse: every unit of the files now exists in the baseline or the allowlist.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 
+const usage =
+  'usage: check-skill-coverage.mjs <baseline commit> [--allow <file>] [--replaced <file>] <file>...\n' +
+  '   or: check-skill-coverage.mjs <baseline commit> [--allow <file>] [--replaced <file>] --baseline <file>... --files <file>...';
 const args = process.argv.slice(2);
 const opts = { allow: null, replaced: null };
-const files = [];
+const positional = [];
+const lists = { baseline: null, files: null };
 let commit = null;
+let list = null;
 for (let i = 0; i < args.length; i++) {
   const flag = args[i].match(/^--(allow|replaced)$/);
-  if (flag) opts[flag[1]] = args[++i];
+  const multi = args[i].match(/^--(baseline|files)$/);
+  if (flag) {
+    opts[flag[1]] = args[++i];
+    list = null;
+  } else if (multi) {
+    list = lists[multi[1]] = lists[multi[1]] || [];
+  } else if (list) list.push(args[i]);
   else if (!commit) commit = args[i];
-  else files.push(args[i]);
+  else positional.push(args[i]);
 }
-if (!commit || !files.length) {
-  console.error('usage: check-skill-coverage.mjs <baseline commit> [--allow <file>] [--replaced <file>] <file>...');
+const explicit = lists.baseline !== null || lists.files !== null;
+if (!commit || (explicit ? positional.length || !lists.baseline?.length || !lists.files?.length : !positional.length)) {
+  console.error(usage);
   process.exit(2);
 }
+const baselineFiles = explicit ? lists.baseline : positional;
+const files = explicit ? lists.files : positional;
 
 const collapse = (s) => s.replace(/\s+/g, ' ').trim();
 
@@ -90,9 +107,13 @@ function atCommit(file) {
 
 const baseline = [];
 const inBaseline = [];
-for (const f of files) {
+for (const f of baselineFiles) {
   const text = atCommit(f);
-  if (text === null) continue;
+  if (text === null) {
+    if (!explicit) continue;
+    console.error(`baseline file not found at ${commit}: ${f}`);
+    process.exit(2);
+  }
   inBaseline.push(f);
   baseline.push(...units(text));
 }
