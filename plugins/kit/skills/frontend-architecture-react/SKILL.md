@@ -624,8 +624,8 @@ For each entity, skipping anything the request does not need:
 8. Components, dumb first, form last.
 9. Pages, thin, with the three query states.
 10. Routes, `index.ts` and `app/router.ts`: steps 10 to 12 are in
-    `references/routing-react-router.md`. Then run the definition-of-done
-    list.
+    `references/routing-react-router.md`. Then check it works in the
+    browser, and run the definition-of-done list.
 
 ## Definition of done
 
