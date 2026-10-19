@@ -252,6 +252,31 @@ loaded. A failed refetch keeps the data on screen, and the `QueryCache` in
 A component that receives data as props renders it. It does not check
 `isLoading` on data it was handed.
 
+## Definition of done
+
+1. `pnpm typecheck` passes
+2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
+   import rule
+3. `pnpm test` passes, with tests for the new behaviour
+4. Every `apiCall` and `apiCallPaginated` has an explicit generic
+5. Every GET threads `signal`; no mutation does
+6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
+   enum union
+7. Every filter key has an entry in the spec, and the spec is at module scope
+8. No raw colors, only semantic tokens
+9. No wrapper component that only forwards props
+10. No file created that the request did not need
+11. No comment restates what the code does, no doc block sits above a
+    self-explanatory export, and no placeholder comments from this guide
+    survived
+12. No em dashes in code, comments, copy, or your summary
+13. `index.ts` exports only what another feature or the router actually needs
+14. The done check in `references/routing-react-router.md` passes
+15. Any new piece in `components/ui` or `systems` has its section on the theme
+    preview page
+16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
+    never `mutation.mutate(values)`
+
 ## Import direction
 
 A dependency graph, not a single chain. Arrows point at what a file may import:
@@ -277,31 +302,6 @@ build its enum fields with `toZodEnum`.
 
 Nothing imports upward. A component importing from a page, or `systems/`
 importing from a feature, means the thing is in the wrong folder.
-
-## Definition of done
-
-1. `pnpm typecheck` passes
-2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
-   import rule
-3. `pnpm test` passes, with tests for the new behaviour
-4. Every `apiCall` and `apiCallPaginated` has an explicit generic
-5. Every GET threads `signal`; no mutation does
-6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
-   enum union
-7. Every filter key has an entry in the spec, and the spec is at module scope
-8. No raw colors, only semantic tokens
-9. No wrapper component that only forwards props
-10. No file created that the request did not need
-11. No comment restates what the code does, no doc block sits above a
-    self-explanatory export, and no placeholder comments from this guide
-    survived
-12. No em dashes in code, comments, copy, or your summary
-13. `index.ts` exports only what another feature or the router actually needs
-14. The done check in `references/routing-react-router.md` passes
-15. Any new piece in `components/ui` or `systems` has its section on the theme
-    preview page
-16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
-    never `mutation.mutate(values)`
 
 ## Comments
 
