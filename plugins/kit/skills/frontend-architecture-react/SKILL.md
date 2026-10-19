@@ -57,7 +57,8 @@ single most common way this architecture goes wrong.
 correctness, not tidiness. Skipping one produces a bug, not just an untidy
 file:
 
-- One query key and one query function per endpoint, in `api/*.queries.ts`
+- One query key and one query function per endpoint: the key in
+  `definitions/*.constants.ts`, the function in `api/*.queries.ts`
 - Every enum is a `createLookup`, union derived from it
 - All HTTP through `apiCall` / `apiCallPaginated` with an explicit generic, from
   `*.api.ts` only
@@ -388,11 +389,11 @@ importing from a feature, means the thing is in the wrong folder.
 ## The rules that actually matter
 
 **1. One endpoint, one definition.**
-Every query key and query function is declared once, in `api/*.queries.ts`.
-Consumers call the exported hook. Never write an inline
-`useQuery({ queryKey: [...], queryFn: ... })` in a component. Drifting keys are
-the number one cause of "I updated it but the other screen still shows the old
-value".
+Every query key is declared once, in `definitions/*.constants.ts`, and every
+query function once, in `api/*.queries.ts`. Consumers call the exported hook.
+Never write an inline `useQuery({ queryKey: [...], queryFn: ... })` in a
+component. Drifting keys are the number one cause of "I updated it but the
+other screen still shows the old value".
 
 **2. Reading the same GET in several places is correct, not a bug.**
 Identical key means one request and a shared cache. Do not prop-drill a fetched
