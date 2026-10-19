@@ -48,6 +48,27 @@ your summary which one you copied and why. Do not add a new top-level folder.
 When the code and this skill disagree, follow the code and flag the mismatch so
 the skill gets fixed in the kit repo.
 
+## Output style
+
+No em dashes anywhere you write: code comments, JSX text, labels, toast
+strings, commit messages, or the summary you report back. Use a hyphen, a
+comma, or rewrite the sentence. The only acceptable dash is one that is part of
+syntax.
+
+Code follows the repo's root Prettier config: single quotes, trailing commas,
+2-space indent. Run `pnpm format` from the repo root; `pnpm format:check` must
+pass.
+
+## Scope discipline
+
+Build what was asked and stop. Do not refactor neighbouring code, do not
+rename things you were not asked about, do not create files for work that has
+not been requested yet. If you spot something worth changing outside the
+request, mention it in your summary instead of doing it.
+
+A request to add one filter touches the filter spec, the filter bar and
+nothing else.
+
 ## Two kinds of rule
 
 Everything in this file falls into one of two buckets. Confusing them is the
@@ -89,302 +110,6 @@ underlying component directly.
 
 An abstraction with one caller and no second caller in sight is not an
 abstraction. It is indirection.
-
-## Scope discipline
-
-Build what was asked and stop. Do not refactor neighbouring code, do not
-rename things you were not asked about, do not create files for work that has
-not been requested yet. If you spot something worth changing outside the
-request, mention it in your summary instead of doing it.
-
-A request to add one filter touches the filter spec, the filter bar and
-nothing else.
-
-## Source tree
-
-```
-src/
-├── app/            router, route tree, shell (sidebar, header, palette), providers,
-│                   route errors, access gate, dev-only routes in app/dev
-├── components/ui/  shadcn primitives on Base UI. The only home of modals
-├── features/       one folder per domain
-├── lib/            framework-agnostic, no React
-├── systems/        React-aware, shared, no domain knowledge
-├── styles/         theme.css, the semantic tokens
-└── test/           renderApp, renderWithRouter, renderWithQuery, msw server
-```
-
-## Folder contract
-
-The unit is the **entity**, not the feature. A feature folder owns a group of
-related entities, and each entity gets its own file per layer with the same
-suffixes.
-
-```
-features/<feature>/
-├── index.ts                        public API. Only file other features may import
-├── routes.tsx                      AppRouteObject[] for this feature, lazy pages
-├── definitions/
-│   ├── <entity>.lookup.ts          createLookup per enum + the derived unions
-│   ├── <entity>.types.ts           API shapes. No react, no logic
-│   ├── <entity>.schema.ts          zod schemas + inferred form types
-│   └── <entity>.constants.ts       query keys, filter spec, defaults
-├── api/
-│   ├── <entity>.api.ts             endpoint definitions via apiCall. No react
-│   ├── <entity>.queries.ts         useQuery hooks, async select sources
-│   └── <entity>.mutations.ts       useMutation hooks + invalidation + success toast
-├── hooks/                          feature logic that is not fetching
-├── components/                     feature UI
-└── pages/                          route screens
-```
-
-With one entity, the files sit flat. The prefix is always the entity name,
-singular, never the feature's: `features/users` holds `user.api.ts`,
-`USER_KEYS` and `useUser`, and `features/home` holds `health.*`. With two or
-more, the prefix is what makes the folder navigable, and
-`components/` and `pages/` gain a subfolder per entity as soon as the second
-entity arrives:
-
-```
-components/classes/class-form.tsx
-pages/classes/class-list-page.tsx
-pages/subjects/subject-list-page.tsx
-```
-
-Filenames keep the entity prefix inside the subfolder. `class-list-page.tsx`,
-not `list-page.tsx`, or your editor tabs are six files called `list-page`.
-
-Not every entity needs every file. No enums means no `lookup.ts`, no form
-means no `schema.ts`. Never create an empty file or an empty folder.
-`features/home` is the smallest real example: one `health` entity
-(`health.api.ts`, `health.queries.ts`, `health.constants.ts`,
-`health.lookup.ts`, `health.types.ts`), one page with its spec, `routes.tsx`
-and `index.ts`. It has no form, so no `schema.ts`, and no writes, so no
-`mutations.ts`.
-
-### Query keys are per entity
-
-```ts
-export const CLASS_KEYS = { all: ['academic', 'classes'] as const, ... };
-export const SUBJECT_KEYS = { all: ['academic', 'subjects'] as const, ... };
-```
-
-Never one feature-wide key object with entities nested inside it. Invalidating
-a class would refetch every subject.
-
-### When a sub-entity becomes its own feature
-
-Split it into `features/<name>/` when both are true:
-
-- Nothing else in the current folder imports its types or hooks
-- It has its own routes and its own cache lifecycle
-
-Entities that only share a sidebar heading are two features sitting next to
-each other in the nav. Related on a whiteboard is not the same as coupled in
-code.
-
-Entities that do reference each other stay together. That is the payoff: the
-class form imports `subjectOptionsSource` with a relative path, no `index.ts`,
-no cross-feature rule to satisfy, same cache.
-
-## Shared code: `lib/`, `components/ui/`, `systems/`
-
-Three shared tiers. Neither `lib/` nor `systems/` may import from `features/`.
-No lint rule enforces that yet, so hold it by hand.
-
-The file-by-file map of `lib/`, `components/ui/` and `systems/` is in
-`references/shared-code.md`. Read it before you write a helper, a hook or a
-component that may already exist.
-
-If it imports react, it goes in `systems/`. If it does not, `lib/`. Anything a
-second feature would otherwise redeclare belongs in one of them. Never write an
-inline `toLocaleString()` or `Intl` call in a component; use `lib/format` and
-`lib/date`, or two screens will disagree within a week.
-
-Every new piece in `components/ui` or `systems` gets a section, or a specimen
-in an existing section, on the theme preview page
-(`app/dev/theme-preview`) in the same change. That page is what reviews them.
-
-### Styling
-
-Colors come from the semantic tokens in `styles/theme.css`, mapped into
-Tailwind in `index.css`: `bg-background`, `text-muted-foreground`,
-`bg-destructive`, `border-border` and so on. Never a raw color: no hex, `rgb()`,
-`oklch()` or palette classes like `bg-red-500` outside `theme.css`. A tint is
-opacity on a token (`bg-success/15 text-success`), never a new token. Dark mode
-is the `.dark` class on `<html>`, and the tokens switch with it.
-
-Touch targets are 40px below `sm` and 32 to 36px from `sm` up. All of them
-carry this already, so pick a `size` and add no height of your own. A control
-that has to look smaller than 32px, like a chip's remove mark, keeps its look
-and grows its hit area with an `after:` box (`components/ui/combobox.tsx`,
-`systems/form/fields/tags-field.tsx`). Which control has which height is in
-`references/control-sizes.md`.
-
-### Forms
-
-Forms come from `@/systems/form`: `Form`, `FormError`, `FormActions`,
-`FormSheet` and `formFields`. Fields come only from `formFields(schema)`,
-called once at module level next to the schema, so `name` and `dependsOn` are
-checked against the schema's keys:
-
-```tsx
-const Field = formFields(classFormSchema);
-// <Field.Input name="name" label="Class name" required />
-```
-
-`Form` seeds empty defaults from the schema, so pass only real values in
-`defaultValues`. `onSubmit` awaits whatever it returns: return or await
-`mutation.mutateAsync(values)` and let a rejection throw. Never
-`mutation.mutate(values)` inside a form, or a server error becomes a toast
-instead of a field message.
-
-Missing a field? Add it to `systems/form`. Do not build a one-off field
-component inside a feature.
-
-The field list and how `Form` maps server errors are in `references/forms.md`.
-
-### Async selects
-
-A picker over a list too long to ship to the browser is a `Field.AsyncSelect`
-in a form, or a `FilterAsyncSelect` / popover `asyncSelect` in a filter bar. All
-of them take one `AsyncOptionsSource`, owned by the entity it lists, in its
-`api/<entity>.queries.ts`.
-
-Pass `initialOptions` with the labels of values an edit form or a shared URL
-starts with, so the trigger shows names before the first fetch.
-
-An example source and how it caches are in `references/forms.md`.
-
-### Filters
-
-List filter state lives in the URL, through `@/systems/filters`. Declare a spec
-in the entity's `constants.ts`, consume it in the page.
-
-The spec needs an entry for every key of the filter type, so adding a filter
-fails to compile until it says how it is read. Never hand-roll `useSearchParams`
-parsing in a page, and never cast a param to an enum union. Pass the lookup's
-`.values` and let the spec reject anything else.
-
-Define the spec at module scope. An inline object is a new identity every
-render, and it flows into the query key.
-
-A search the api caps takes the cap from `@<scope>/shared` twice: as
-`maxLength` on the spec field, which cuts a longer value from a hand-edited
-URL, and as `maxLength` on `SearchInput`, which stops typing and pasting
-there. Either way the request is never a 400
-(`search: { maxLength: USER_SEARCH_MAX_LENGTH }` in `features/users`).
-
-The spec and hook in use, and the filter controls, are in
-`references/filters.md`.
-
-### Tables
-
-Everything table comes from `@/systems/table`: `DataTable`,
-`createColumnHelper`, `ColumnDef`, `RowLink`. Never import `ColumnDef` or
-`createColumnHelper` from `@tanstack/react-table`: the local ones carry the
-typed column meta.
-
-Column meta: `align` (header, cells and skeleton together), `size` in px,
-`hideBelow: 'sm' | 'md' | 'lg'`, `sticky: 'left'` (leading columns only, and
-every sticky column but the last needs a `size`; dev warns otherwise).
-
-Keep a column's renderer the same for a given column id: swapping in one with
-different hooks breaks the hook order.
-
-`isLoading` shows skeleton rows, `isFetching` dims the rows already there,
-which needs `placeholderData: keepPreviousData` on the list query.
-`onRowClick` is mouse only; `RowLink` in the column that names the record is
-the keyboard path. Row buttons use `RowActions` or `RowActionsMenu` from
-`@/systems/ui`.
-
-The column helper, `DataTable` wiring on a list page and the table height
-(`--table-offset`) are in `references/tables.md`.
-
-### Modals, confirm and toasts
-
-Dialogs, sheets and alert dialogs come from `components/ui` (`Dialog`, `Sheet`,
-`AlertDialog`), whose roots report to `components/ui/modal-registry`. The
-command palette reads that registry to stay out of the way. The registry is
-internal bookkeeping: a feature never calls it, it only has to use those
-primitives. A modal built straight on `@base-ui/react` is not tracked; do not
-build one.
-
-A form in a side panel is `FormSheet` from `@/systems/form`. There is no
-`FormDialog`: a form in a dialog is a `Dialog` with a `Form` inside it, in the
-feature (`features/users/components/user-password-dialog.tsx`), until a
-second feature needs one and it moves to `systems/form`.
-
-Confirmations go through `useConfirm()` from `@/systems/confirmation`:
-`confirm({ title, description, variant, onConfirm })`, with `variant`
-`default`, `destructive` or `warning`. Return the mutation promise from
-`onConfirm`: the dialog shows pending, stays open on a rejection and lets the
-global toast report it.
-
-Toasts and confirms render outside the router. What that means for links and
-navigation is in `references/routing-react-router.md`.
-
-## Routing
-
-Routing lives in `references/routing-react-router.md`: routes,
-`AppRouteObject`, handles, access, `NAV_GROUPS`, `app/router.ts`, dev routes
-and the app shell. Read it before you add or change a route, a handle, a nav
-entry or route access, or anything in `app/router.ts` or `app/routes.tsx`.
-
-## Import style
-
-- **Inside a feature**: relative. `../definitions/class.types`
-- **Across features, and into `lib/`, `systems/` or `components/ui/`**: the
-  `@/` alias. `@/features/students`, `@/lib/api/api-call`
-- Never `@/features/academic/...` from inside `features/academic`.
-- `@<scope>/shared` for anything the API also uses: `PaginatedResponse`,
-  `PaginationMeta`, `ErrorResponse`, `ERROR_CODES`, `ROLES`, `Role`, page limits.
-
-Oxlint's `no-restricted-imports` blocks `@/features/*/**` everywhere, so a
-feature is reachable only through its `index.ts`.
-
-## Import direction
-
-A dependency graph, not a single chain. Arrows point at what a file may import:
-
-```
-pages -> components -> hooks -> api -> definitions -> lib
-  |          |                                        systems -> components/ui -> lib
-  +----------+--------> systems (ui, table, form, filters, confirmation)
-```
-
-Inside `definitions/`:
-
-```
-lookup  <- types  <- constants
-   ^                     ^
-   +------- schema ------+
-```
-
-`lookup.ts` imports nothing from its own feature. `types.ts` imports the union
-from `lookup.ts` and re-exports it. `constants.ts` imports types, and the
-lookup when a filter spec needs `.values`. `schema.ts` imports the lookup to
-build its enum fields with `toZodEnum`.
-
-Nothing imports upward. A component importing from a page, or `systems/`
-importing from a feature, means the thing is in the wrong folder.
-
-## What goes in which file
-
-| File                         | Owns                                                                         | Never contains                                |
-| ---------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
-| `definitions/*.lookup.ts`    | `createLookup` configs, unions derived from them                             | anything not enum-related                     |
-| `definitions/*.types.ts`     | API shapes, re-export of the lookup unions                                   | enum unions declared by hand, runtime code    |
-| `definitions/*.schema.ts`    | zod schemas, `z.infer` types                                                 | fetching, react, re-typed enum values         |
-| `definitions/*.constants.ts` | query keys, filter spec, defaults, limits                                    | enums, functions with side effects            |
-| `api/*.api.ts`               | endpoint + method + payload, via typed `apiCall<T>`                          | bare axios/fetch, react, react-query, toasts  |
-| `api/*.queries.ts`           | `useQuery` hooks, async select sources, a `queryOptions` factory once earned | mutations, JSX                                |
-| `api/*.mutations.ts`         | `useMutation`, invalidation, success toast                                   | navigation, error toasts, route-specific copy |
-| `hooks/*`                    | derived state, orchestration that a second caller needs                      | JSX, filter parsing                           |
-| `components/*`               | UI. Props in, JSX out                                                        | route knowledge (`useNavigate`, `useParams`)  |
-| `pages/*`                    | hooks to components, page chrome, navigation, query states                   | business rules, inline fetch config           |
-| `routes.tsx`                 | paths, handles, lazy imports                                                 | anything else                                 |
-| `index.ts`                   | re-exports                                                                   | implementation                                |
 
 ## The rules that actually matter
 
@@ -527,6 +252,57 @@ loaded. A failed refetch keeps the data on screen, and the `QueryCache` in
 A component that receives data as props renders it. It does not check
 `isLoading` on data it was handed.
 
+## Import direction
+
+A dependency graph, not a single chain. Arrows point at what a file may import:
+
+```
+pages -> components -> hooks -> api -> definitions -> lib
+  |          |                                        systems -> components/ui -> lib
+  +----------+--------> systems (ui, table, form, filters, confirmation)
+```
+
+Inside `definitions/`:
+
+```
+lookup  <- types  <- constants
+   ^                     ^
+   +------- schema ------+
+```
+
+`lookup.ts` imports nothing from its own feature. `types.ts` imports the union
+from `lookup.ts` and re-exports it. `constants.ts` imports types, and the
+lookup when a filter spec needs `.values`. `schema.ts` imports the lookup to
+build its enum fields with `toZodEnum`.
+
+Nothing imports upward. A component importing from a page, or `systems/`
+importing from a feature, means the thing is in the wrong folder.
+
+## Definition of done
+
+1. `pnpm typecheck` passes
+2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
+   import rule
+3. `pnpm test` passes, with tests for the new behaviour
+4. Every `apiCall` and `apiCallPaginated` has an explicit generic
+5. Every GET threads `signal`; no mutation does
+6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
+   enum union
+7. Every filter key has an entry in the spec, and the spec is at module scope
+8. No raw colors, only semantic tokens
+9. No wrapper component that only forwards props
+10. No file created that the request did not need
+11. No comment restates what the code does, no doc block sits above a
+    self-explanatory export, and no placeholder comments from this guide
+    survived
+12. No em dashes in code, comments, copy, or your summary
+13. `index.ts` exports only what another feature or the router actually needs
+14. The done check in `references/routing-react-router.md` passes
+15. Any new piece in `components/ui` or `systems` has its section on the theme
+    preview page
+16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
+    never `mutation.mutate(values)`
+
 ## Comments
 
 Default is zero comments. A comment is an exception you justify, not a
@@ -565,16 +341,265 @@ Form:
 The reference implementation puts its reasoning in prose between the code
 blocks, not inside them. Generated code follows the code blocks, not the prose.
 
-## Output style
+## Shared code: `lib/`, `components/ui/`, `systems/`
 
-No em dashes anywhere you write: code comments, JSX text, labels, toast
-strings, commit messages, or the summary you report back. Use a hyphen, a
-comma, or rewrite the sentence. The only acceptable dash is one that is part of
-syntax.
+Three shared tiers. Neither `lib/` nor `systems/` may import from `features/`.
+No lint rule enforces that yet, so hold it by hand.
 
-Code follows the repo's root Prettier config: single quotes, trailing commas,
-2-space indent. Run `pnpm format` from the repo root; `pnpm format:check` must
-pass.
+The file-by-file map of `lib/`, `components/ui/` and `systems/` is in
+`references/shared-code.md`. Read it before you write a helper, a hook or a
+component that may already exist.
+
+If it imports react, it goes in `systems/`. If it does not, `lib/`. Anything a
+second feature would otherwise redeclare belongs in one of them. Never write an
+inline `toLocaleString()` or `Intl` call in a component; use `lib/format` and
+`lib/date`, or two screens will disagree within a week.
+
+Every new piece in `components/ui` or `systems` gets a section, or a specimen
+in an existing section, on the theme preview page
+(`app/dev/theme-preview`) in the same change. That page is what reviews them.
+
+### Styling
+
+Colors come from the semantic tokens in `styles/theme.css`, mapped into
+Tailwind in `index.css`: `bg-background`, `text-muted-foreground`,
+`bg-destructive`, `border-border` and so on. Never a raw color: no hex, `rgb()`,
+`oklch()` or palette classes like `bg-red-500` outside `theme.css`. A tint is
+opacity on a token (`bg-success/15 text-success`), never a new token. Dark mode
+is the `.dark` class on `<html>`, and the tokens switch with it.
+
+Touch targets are 40px below `sm` and 32 to 36px from `sm` up. All of them
+carry this already, so pick a `size` and add no height of your own. A control
+that has to look smaller than 32px, like a chip's remove mark, keeps its look
+and grows its hit area with an `after:` box (`components/ui/combobox.tsx`,
+`systems/form/fields/tags-field.tsx`). Which control has which height is in
+`references/control-sizes.md`.
+
+### Forms
+
+Forms come from `@/systems/form`: `Form`, `FormError`, `FormActions`,
+`FormSheet` and `formFields`. Fields come only from `formFields(schema)`,
+called once at module level next to the schema, so `name` and `dependsOn` are
+checked against the schema's keys:
+
+```tsx
+const Field = formFields(classFormSchema);
+// <Field.Input name="name" label="Class name" required />
+```
+
+`Form` seeds empty defaults from the schema, so pass only real values in
+`defaultValues`. `onSubmit` awaits whatever it returns: return or await
+`mutation.mutateAsync(values)` and let a rejection throw. Never
+`mutation.mutate(values)` inside a form, or a server error becomes a toast
+instead of a field message.
+
+Missing a field? Add it to `systems/form`. Do not build a one-off field
+component inside a feature.
+
+The field list and how `Form` maps server errors are in `references/forms.md`.
+
+### Async selects
+
+A picker over a list too long to ship to the browser is a `Field.AsyncSelect`
+in a form, or a `FilterAsyncSelect` / popover `asyncSelect` in a filter bar. All
+of them take one `AsyncOptionsSource`, owned by the entity it lists, in its
+`api/<entity>.queries.ts`.
+
+Pass `initialOptions` with the labels of values an edit form or a shared URL
+starts with, so the trigger shows names before the first fetch.
+
+An example source and how it caches are in `references/forms.md`.
+
+### Filters
+
+List filter state lives in the URL, through `@/systems/filters`. Declare a spec
+in the entity's `constants.ts`, consume it in the page.
+
+The spec needs an entry for every key of the filter type, so adding a filter
+fails to compile until it says how it is read. Never hand-roll `useSearchParams`
+parsing in a page, and never cast a param to an enum union. Pass the lookup's
+`.values` and let the spec reject anything else.
+
+Define the spec at module scope. An inline object is a new identity every
+render, and it flows into the query key.
+
+A search the api caps takes the cap from `@<scope>/shared` twice: as
+`maxLength` on the spec field, which cuts a longer value from a hand-edited
+URL, and as `maxLength` on `SearchInput`, which stops typing and pasting
+there. Either way the request is never a 400
+(`search: { maxLength: USER_SEARCH_MAX_LENGTH }` in `features/users`).
+
+The spec and hook in use, and the filter controls, are in
+`references/filters.md`.
+
+### Tables
+
+Everything table comes from `@/systems/table`: `DataTable`,
+`createColumnHelper`, `ColumnDef`, `RowLink`. Never import `ColumnDef` or
+`createColumnHelper` from `@tanstack/react-table`: the local ones carry the
+typed column meta.
+
+Column meta: `align` (header, cells and skeleton together), `size` in px,
+`hideBelow: 'sm' | 'md' | 'lg'`, `sticky: 'left'` (leading columns only, and
+every sticky column but the last needs a `size`; dev warns otherwise).
+
+Keep a column's renderer the same for a given column id: swapping in one with
+different hooks breaks the hook order.
+
+`isLoading` shows skeleton rows, `isFetching` dims the rows already there,
+which needs `placeholderData: keepPreviousData` on the list query.
+`onRowClick` is mouse only; `RowLink` in the column that names the record is
+the keyboard path. Row buttons use `RowActions` or `RowActionsMenu` from
+`@/systems/ui`.
+
+The column helper, `DataTable` wiring on a list page and the table height
+(`--table-offset`) are in `references/tables.md`.
+
+### Modals, confirm and toasts
+
+Dialogs, sheets and alert dialogs come from `components/ui` (`Dialog`, `Sheet`,
+`AlertDialog`), whose roots report to `components/ui/modal-registry`. The
+command palette reads that registry to stay out of the way. The registry is
+internal bookkeeping: a feature never calls it, it only has to use those
+primitives. A modal built straight on `@base-ui/react` is not tracked; do not
+build one.
+
+A form in a side panel is `FormSheet` from `@/systems/form`. There is no
+`FormDialog`: a form in a dialog is a `Dialog` with a `Form` inside it, in the
+feature (`features/users/components/user-password-dialog.tsx`), until a
+second feature needs one and it moves to `systems/form`.
+
+Confirmations go through `useConfirm()` from `@/systems/confirmation`:
+`confirm({ title, description, variant, onConfirm })`, with `variant`
+`default`, `destructive` or `warning`. Return the mutation promise from
+`onConfirm`: the dialog shows pending, stays open on a rejection and lets the
+global toast report it.
+
+Toasts and confirms render outside the router. What that means for links and
+navigation is in `references/routing-react-router.md`.
+
+## Import style
+
+- **Inside a feature**: relative. `../definitions/class.types`
+- **Across features, and into `lib/`, `systems/` or `components/ui/`**: the
+  `@/` alias. `@/features/students`, `@/lib/api/api-call`
+- Never `@/features/academic/...` from inside `features/academic`.
+- `@<scope>/shared` for anything the API also uses: `PaginatedResponse`,
+  `PaginationMeta`, `ErrorResponse`, `ERROR_CODES`, `ROLES`, `Role`, page limits.
+
+Oxlint's `no-restricted-imports` blocks `@/features/*/**` everywhere, so a
+feature is reachable only through its `index.ts`.
+
+## Folder contract
+
+The unit is the **entity**, not the feature. A feature folder owns a group of
+related entities, and each entity gets its own file per layer with the same
+suffixes.
+
+```
+features/<feature>/
+├── index.ts                        public API. Only file other features may import
+├── routes.tsx                      AppRouteObject[] for this feature, lazy pages
+├── definitions/
+│   ├── <entity>.lookup.ts          createLookup per enum + the derived unions
+│   ├── <entity>.types.ts           API shapes. No react, no logic
+│   ├── <entity>.schema.ts          zod schemas + inferred form types
+│   └── <entity>.constants.ts       query keys, filter spec, defaults
+├── api/
+│   ├── <entity>.api.ts             endpoint definitions via apiCall. No react
+│   ├── <entity>.queries.ts         useQuery hooks, async select sources
+│   └── <entity>.mutations.ts       useMutation hooks + invalidation + success toast
+├── hooks/                          feature logic that is not fetching
+├── components/                     feature UI
+└── pages/                          route screens
+```
+
+With one entity, the files sit flat. The prefix is always the entity name,
+singular, never the feature's: `features/users` holds `user.api.ts`,
+`USER_KEYS` and `useUser`, and `features/home` holds `health.*`. With two or
+more, the prefix is what makes the folder navigable, and
+`components/` and `pages/` gain a subfolder per entity as soon as the second
+entity arrives:
+
+```
+components/classes/class-form.tsx
+pages/classes/class-list-page.tsx
+pages/subjects/subject-list-page.tsx
+```
+
+Filenames keep the entity prefix inside the subfolder. `class-list-page.tsx`,
+not `list-page.tsx`, or your editor tabs are six files called `list-page`.
+
+Not every entity needs every file. No enums means no `lookup.ts`, no form
+means no `schema.ts`. Never create an empty file or an empty folder.
+`features/home` is the smallest real example: one `health` entity
+(`health.api.ts`, `health.queries.ts`, `health.constants.ts`,
+`health.lookup.ts`, `health.types.ts`), one page with its spec, `routes.tsx`
+and `index.ts`. It has no form, so no `schema.ts`, and no writes, so no
+`mutations.ts`.
+
+### Query keys are per entity
+
+```ts
+export const CLASS_KEYS = { all: ['academic', 'classes'] as const, ... };
+export const SUBJECT_KEYS = { all: ['academic', 'subjects'] as const, ... };
+```
+
+Never one feature-wide key object with entities nested inside it. Invalidating
+a class would refetch every subject.
+
+### When a sub-entity becomes its own feature
+
+Split it into `features/<name>/` when both are true:
+
+- Nothing else in the current folder imports its types or hooks
+- It has its own routes and its own cache lifecycle
+
+Entities that only share a sidebar heading are two features sitting next to
+each other in the nav. Related on a whiteboard is not the same as coupled in
+code.
+
+Entities that do reference each other stay together. That is the payoff: the
+class form imports `subjectOptionsSource` with a relative path, no `index.ts`,
+no cross-feature rule to satisfy, same cache.
+
+## Source tree
+
+```
+src/
+├── app/            router, route tree, shell (sidebar, header, palette), providers,
+│                   route errors, access gate, dev-only routes in app/dev
+├── components/ui/  shadcn primitives on Base UI. The only home of modals
+├── features/       one folder per domain
+├── lib/            framework-agnostic, no React
+├── systems/        React-aware, shared, no domain knowledge
+├── styles/         theme.css, the semantic tokens
+└── test/           renderApp, renderWithRouter, renderWithQuery, msw server
+```
+
+## What goes in which file
+
+| File                         | Owns                                                                         | Never contains                                |
+| ---------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
+| `definitions/*.lookup.ts`    | `createLookup` configs, unions derived from them                             | anything not enum-related                     |
+| `definitions/*.types.ts`     | API shapes, re-export of the lookup unions                                   | enum unions declared by hand, runtime code    |
+| `definitions/*.schema.ts`    | zod schemas, `z.infer` types                                                 | fetching, react, re-typed enum values         |
+| `definitions/*.constants.ts` | query keys, filter spec, defaults, limits                                    | enums, functions with side effects            |
+| `api/*.api.ts`               | endpoint + method + payload, via typed `apiCall<T>`                          | bare axios/fetch, react, react-query, toasts  |
+| `api/*.queries.ts`           | `useQuery` hooks, async select sources, a `queryOptions` factory once earned | mutations, JSX                                |
+| `api/*.mutations.ts`         | `useMutation`, invalidation, success toast                                   | navigation, error toasts, route-specific copy |
+| `hooks/*`                    | derived state, orchestration that a second caller needs                      | JSX, filter parsing                           |
+| `components/*`               | UI. Props in, JSX out                                                        | route knowledge (`useNavigate`, `useParams`)  |
+| `pages/*`                    | hooks to components, page chrome, navigation, query states                   | business rules, inline fetch config           |
+| `routes.tsx`                 | paths, handles, lazy imports                                                 | anything else                                 |
+| `index.ts`                   | re-exports                                                                   | implementation                                |
+
+## Routing
+
+Routing lives in `references/routing-react-router.md`: routes,
+`AppRouteObject`, handles, access, `NAV_GROUPS`, `app/router.ts`, dev routes
+and the app shell. Read it before you add or change a route, a handle, a nav
+entry or route access, or anything in `app/router.ts` or `app/routes.tsx`.
 
 ## Naming
 
@@ -626,28 +651,3 @@ For each entity, skipping anything the request does not need:
 10. Routes, `index.ts` and `app/router.ts`: steps 10 to 12 are in
     `references/routing-react-router.md`. Then check it works in the
     browser, and run the definition-of-done list.
-
-## Definition of done
-
-1. `pnpm typecheck` passes
-2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
-   import rule
-3. `pnpm test` passes, with tests for the new behaviour
-4. Every `apiCall` and `apiCallPaginated` has an explicit generic
-5. Every GET threads `signal`; no mutation does
-6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
-   enum union
-7. Every filter key has an entry in the spec, and the spec is at module scope
-8. No raw colors, only semantic tokens
-9. No wrapper component that only forwards props
-10. No file created that the request did not need
-11. No comment restates what the code does, no doc block sits above a
-    self-explanatory export, and no placeholder comments from this guide
-    survived
-12. No em dashes in code, comments, copy, or your summary
-13. `index.ts` exports only what another feature or the router actually needs
-14. The done check in `references/routing-react-router.md` passes
-15. Any new piece in `components/ui` or `systems` has its section on the theme
-    preview page
-16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
-    never `mutation.mutate(values)`
