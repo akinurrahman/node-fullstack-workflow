@@ -87,7 +87,8 @@ These are steps 10 to 12 of the build order in `SKILL.md`.
 10. Route entries in `routes.tsx`, with handles and lazy pages.
 11. `index.ts` exporting the route array, plus anything another feature needs.
 12. Spread the routes into `pages` (or `barePages`) in `app/router.ts`, add a
-    new nav group to `NAV_GROUPS`, then run the definition-of-done list.
+    new nav group to `NAV_GROUPS`, then check it works in the browser and run
+    the definition-of-done list.
 
 ## Done check
 

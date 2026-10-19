@@ -1044,9 +1044,9 @@ trigger fires is what makes a codebase hard to read.
 
 ## Build order
 
-One entity end to end, then the next. Class types, class constants, class api,
-class queries, class mutations, class form, class pages, wire the routes, check
-it works in the browser. Then subject.
+One entity end to end, then the next. Class lookup, class types, class
+constants, class api, class queries, class mutations, class schema, class form,
+class pages, wire the routes, check it works in the browser. Then subject.
 
 Not layer by layer. Writing every types file first means finding out the
 `ClassFilters` shape is wrong six files later, in four places at once.
