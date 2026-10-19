@@ -1,5 +1,5 @@
 ---
-name: frontend-architecture-react
+name: frontend-architecture
 description: Feature-based architecture spec for a React 19 SPA on Vite with React Router 8 (data mode) - folder layout, one file set per entity, definitions/api/components/pages layering, createLookup for enums, apiCall and the response envelope, React Query keys and invalidation, URL filter specs, async select sources, systems/table, route handles and NAV_GROUPS, modals, semantic tokens, and the rules for when an abstraction earns a file. Use this skill whenever creating a new feature under apps/web/src/features/, adding an entity, page, query, mutation, form, table, or filter to an existing feature, wiring a domain into the router, changing src/systems, src/lib or src/app, or refactoring anything that touches data fetching or folder structure. Consult it even when the request sounds routine ("add a status filter", "make an edit page", "hook this up to the API") - the conventions here are template-specific and cannot be inferred from surrounding files.
 ---
 
