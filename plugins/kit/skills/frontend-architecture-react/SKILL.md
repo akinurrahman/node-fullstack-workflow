@@ -75,7 +75,7 @@ first. Extract when the trigger fires:
 | Thing                                     | Trigger                                                                                |
 | ----------------------------------------- | -------------------------------------------------------------------------------------- |
 | A component file                          | the JSX has a second caller, or the parent passes ~150 lines                           |
-| A `<entity>-columns.tsx` file             | the column array outgrows the page, roughly 8 columns                                  |
+| A `<entity>-columns.tsx` file             | the column array outgrows the page, roughly 8 columns or a page over 150 lines         |
 | A hook in `hooks/`                        | the logic has a second caller, or the page passes ~150 lines                           |
 | A `queryOptions` factory next to the hook | you need `prefetchQuery`, `ensureQueryData`, a route loader, or a typed `getQueryData` |
 | A `systems/` extraction                   | a second feature needs it. Not the first                                               |
