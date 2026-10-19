@@ -1032,15 +1032,15 @@ the slice a saved preset stores, which is the filters minus anything marked
 Each of these is a real pattern with a real trigger. Adding it before the
 trigger fires is what makes a codebase hard to read.
 
-| Not built                              | Build it when                                                                                                                          |
-| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `components/classes/class-table.tsx`   | never, if it only forwards props to `DataTable`. A wrapper with no defaults and no logic is a rename                                   |
-| `components/classes/class-columns.tsx` | the column array outgrows the page, roughly eight columns or a page over 150 lines                                                     |
-| `hooks/use-class-filters.ts`           | never. `useUrlFilters` covers it, and a per-entity wrapper around a shared hook adds a name and nothing else                           |
-| `classQueries` options factory         | you need `prefetchQuery`, `ensureQueryData`, a route loader, or a typed `getQueryData`                                                 |
-| `pages/classes/class-detail-page.tsx`  | there is something to show that the edit form does not already show                                                                    |
-| `class-status-badge.tsx`               | never. `LookupBadge` plus the lookup covers every enum in the app                                                                      |
-| A `sections` entity in this folder     | it has its own routes and its own cache, and something in academic imports its types. If neither is true it belongs in its own feature |
+| Not built                              | Build it when                                                                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `components/classes/class-table.tsx`   | never, if it only forwards props to `DataTable`. A wrapper with no defaults and no logic is a rename                           |
+| `components/classes/class-columns.tsx` | the column array outgrows the page, roughly eight columns or a page over 150 lines                                             |
+| `hooks/use-class-filters.ts`           | never. `useUrlFilters` covers it, and a per-entity wrapper around a shared hook adds a name and nothing else                   |
+| `classQueries` options factory         | you need `prefetchQuery`, `ensureQueryData`, a route loader, or a typed `getQueryData`                                         |
+| `pages/classes/class-detail-page.tsx`  | there is something to show that the edit form does not already show                                                            |
+| `class-status-badge.tsx`               | never. `LookupBadge` plus the lookup covers every enum in the app                                                              |
+| A `sections` entity in this folder     | something in academic imports its types or hooks. With its own routes and cache and no importer, it belongs in its own feature |
 
 ## Build order
 

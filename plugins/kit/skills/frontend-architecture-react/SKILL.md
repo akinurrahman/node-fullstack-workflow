@@ -550,10 +550,9 @@ a class would refetch every subject.
 
 ### When a sub-entity becomes its own feature
 
-Split it into `features/<name>/` when both are true:
-
-- Nothing else in the current folder imports its types or hooks
-- It has its own routes and its own cache lifecycle
+A sub-entity with its own routes and its own cache stays in the feature when
+something in that feature imports its types, hooks or options source. When
+nothing does, it is its own feature, in `features/<name>/`.
 
 Entities that only share a sidebar heading are two features sitting next to
 each other in the nav. Related on a whiteboard is not the same as coupled in
