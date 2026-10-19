@@ -30,10 +30,17 @@ reference implementation lives in `references/reference-implementation.md`.
 Each file below holds the detail for one area. The rules stay in this file.
 Read the file before you start work in its area, not after.
 
-| File                                     | Read it when                                                                                        |
-| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `references/reference-implementation.md` | you build an entity, a page, a query, a mutation or a form. Read the sections that match            |
-| `references/routing-react-router.md`     | you add or change a route, a handle, a nav entry, route access, `app/router.ts` or `app/routes.tsx` |
+| File                                     | Read it when                                                                                               |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `references/reference-implementation.md` | you build an entity, a page, a query, a mutation or a form. Read the sections that match                   |
+| `references/routing-react-router.md`     | you add or change a route, a handle, a nav entry, route access, `app/router.ts` or `app/routes.tsx`        |
+| `references/api-layer.md`                | you write an `*.api.ts`, a query or a mutation, or handle an `ApiError`                                    |
+| `references/lookups.md`                  | you add or change an enum                                                                                  |
+| `references/forms.md`                    | you build a form, add a field, or write an async options source                                            |
+| `references/filters.md`                  | you add a filter or build a filter bar                                                                     |
+| `references/tables.md`                   | you build a list page, its columns or anything around a `DataTable`                                        |
+| `references/control-sizes.md`            | you size a control or place a button beside an input                                                       |
+| `references/shared-code.md`              | you write a helper, a hook or a component that may already exist in `lib/`, `components/ui/` or `systems/` |
 
 **If something you need is not covered here**, copy the nearest existing
 feature or system in the repo rather than inventing new structure, and say in
@@ -184,41 +191,9 @@ no cross-feature rule to satisfy, same cache.
 Three shared tiers. Neither `lib/` nor `systems/` may import from `features/`.
 No lint rule enforces that yet, so hold it by hand.
 
-```
-lib/                          no react
-├── api/api.ts                the axios instance: base URL + /api, bearer token,
-│                             401 refresh and retry, ApiError interceptor
-├── api/api-call.ts           apiCall, apiCallPaginated. The HTTP entry point
-├── api/api-error.ts          ApiError, isApiError, getErrorMessage
-├── api/access-token.ts       the access token, held in memory only
-├── api/auth-refresh.ts       single-flight refresh, handlers registered by auth
-├── lookup/create-lookup.ts   createLookup, BadgeVariant
-├── reporting/report-error.ts reportError, isUnexpectedError. The one hook for
-│                             error monitoring; the route error boundaries and
-│                             the query and mutation caches call it
-├── format.ts                 formatMoney (minor units), formatNumber, getInitials
-├── date.ts                   formatDate, formatDateTime, calendar-date helpers
-├── env.ts                    the Zod-checked VITE_* env
-├── safe-redirect.ts          safeRedirect for an untrusted ?redirect= path
-├── is-empty-value.ts         what a cleared control holds
-├── chunk-error.ts            isChunkLoadError, a stale chunk after a deploy
-├── platform.ts               isMacPlatform, pageLocation
-├── locale.ts                 APP_LOCALE, APP_CURRENCY
-└── utils.ts                  cn
-components/ui/                shadcn primitives. Dialog, Sheet, AlertDialog,
-                              modal-registry, sidebar, table, select, combobox...
-systems/                      react-aware, shared, zero domain knowledge
-├── api/                      createQueryClient, global mutation error toast
-├── confirmation/             confirm() through useConfirm, ConfirmationHost
-├── filters/                  defineUrlFilters, useUrlFilters, FilterBar and controls
-├── form/                     Form, fields, FormSheet, FormActions, async options
-├── router/                   AppRouteObject, RouteHandle, canAccessRoute
-├── session/                  useSession: status, user, endedBy. Never the token
-├── table/                    DataTable, createColumnHelper, ColumnDef, RowLink
-├── theme/                    theme store, ThemeToggle, themeLookup
-└── ui/                       PageHeader, LookupBadge, Empty/Error/NotFound/
-                              AccessDenied states, PanelSection, RowActions(Menu)
-```
+The file-by-file map of `lib/`, `components/ui/` and `systems/` is in
+`references/shared-code.md`. Read it before you write a helper, a hook or a
+component that may already exist.
 
 If it imports react, it goes in `systems/`. If it does not, `lib/`. Anything a
 second feature would otherwise redeclare belongs in one of them. Never write an
@@ -238,16 +213,12 @@ Tailwind in `index.css`: `bg-background`, `text-muted-foreground`,
 opacity on a token (`bg-success/15 text-success`), never a new token. Dark mode
 is the `.dark` class on `<html>`, and the tokens switch with it.
 
-Touch targets are 40px below `sm` and 32 to 36px from `sm` up. Form controls
-and the default `Button` are `h-10 sm:h-9`, so a button beside an input lines
-up: `Input`, select and combobox triggers, `DatePicker`, the filter controls,
-and the `default` `Button` (there is no text `lg`), plus `icon-lg`
-(`size-10 sm:size-9`) for an icon button beside them. Compact controls are 32px
-from `sm`: `Button` sizes `xs` and `sm`, the icon sizes `icon`, `icon-xs` and
-`icon-sm` (`size-10 sm:size-8`), and menu, select and combobox items. All of them carry this already, so pick a `size`
-and add no height of your own. A control that has to look smaller than 32px, like a
-chip's remove mark, keeps its look and grows its hit area with an `after:`
-box (`components/ui/combobox.tsx`, `systems/form/fields/tags-field.tsx`).
+Touch targets are 40px below `sm` and 32 to 36px from `sm` up. All of them
+carry this already, so pick a `size` and add no height of your own. A control
+that has to look smaller than 32px, like a chip's remove mark, keeps its look
+and grows its hit area with an `after:` box (`components/ui/combobox.tsx`,
+`systems/form/fields/tags-field.tsx`). Which control has which height is in
+`references/control-sizes.md`.
 
 ### Forms
 
@@ -261,73 +232,38 @@ const Field = formFields(classFormSchema);
 // <Field.Input name="name" label="Class name" required />
 ```
 
-It returns `Input` (text, email, url, tel, password, number), `Textarea`,
-`Select` (`multi` for many), `AsyncSelect` (`multi` for many), `Choice`,
-`Switch`, `Tags`, `Time` and `Date`. The raw field components are not
-exported, so an unchecked field name cannot be written. Every field takes `name`, `label`, `description`, `placeholder`, `required`,
-`disabled`, and `dependsOn` / `alwaysVisible` for a cascade.
-
 `Form` seeds empty defaults from the schema, so pass only real values in
 `defaultValues`. `onSubmit` awaits whatever it returns: return or await
-`mutation.mutateAsync(values)` and let a rejection throw. `Form` puts field
-errors from an `ApiError` on their fields, focuses the first, sends the rest to
-`<FormError />`, and marks the error handled so the global toast does not
-repeat it. Never `mutation.mutate(values)` inside a form, or a server error
-becomes a toast instead of a field message.
+`mutation.mutateAsync(values)` and let a rejection throw. Never
+`mutation.mutate(values)` inside a form, or a server error becomes a toast
+instead of a field message.
 
 Missing a field? Add it to `systems/form`. Do not build a one-off field
 component inside a feature.
+
+The field list and how `Form` maps server errors are in `references/forms.md`.
 
 ### Async selects
 
 A picker over a list too long to ship to the browser is a `Field.AsyncSelect`
 in a form, or a `FilterAsyncSelect` / popover `asyncSelect` in a filter bar. All
 of them take one `AsyncOptionsSource`, owned by the entity it lists, in its
-`api/<entity>.queries.ts`:
+`api/<entity>.queries.ts`.
 
-```ts
-export const classOptionsSource: AsyncOptionsSource = {
-  queryKey: CLASS_KEYS.options(),
-  fetch: async ({ search, page, limit, parentValues, signal }) =>
-    fromPaginated(
-      await classApi.getOptions(
-        { search, page, limit, ...parentValues },
-        signal,
-      ),
-      (item) => ({ value: item.id, label: item.name }),
-    ),
-};
-```
+Pass `initialOptions` with the labels of values an edit form or a shared URL
+starts with, so the trigger shows names before the first fetch.
 
-The source runs on React Query (`useInfiniteQuery` inside
-`systems/form/hooks/use-async-options`), keyed by `queryKey` plus the search and
-parent values, so invalidating `CLASS_KEYS.options()` refetches every open
-picker. Pass `initialOptions` with the labels of values an edit form or a
-shared URL starts with, so the trigger shows names before the first fetch.
+An example source and how it caches are in `references/forms.md`.
 
 ### Filters
 
 List filter state lives in the URL, through `@/systems/filters`. Declare a spec
-in the entity's `constants.ts`, consume it in the page:
-
-```ts
-export const CLASS_FILTER_SPEC = defineUrlFilters<ClassFilters>({
-  search: {},
-  status: { values: classStatusLookup.values },
-  ...pagingSpec(20),
-});
-```
-
-```tsx
-const { filters, setFilter, isFiltered, resetFilters } =
-  useUrlFilters(CLASS_FILTER_SPEC);
-```
+in the entity's `constants.ts`, consume it in the page.
 
 The spec needs an entry for every key of the filter type, so adding a filter
 fails to compile until it says how it is read. Never hand-roll `useSearchParams`
 parsing in a page, and never cast a param to an enum union. Pass the lookup's
-`.values` and let the spec reject anything else. A narrowing write clears the
-page cursor inside the hook.
+`.values` and let the spec reject anything else.
 
 Define the spec at module scope. An inline object is a new identity every
 render, and it flows into the query key.
@@ -338,12 +274,8 @@ URL, and as `maxLength` on `SearchInput`, which stops typing and pasting
 there. Either way the request is never a 400
 (`search: { maxLength: USER_SEARCH_MAX_LENGTH }` in `features/users`).
 
-The controls: `FilterBar` (row layout, "Clear filters", page actions),
-`SearchInput` (debounced), `FilterSelect`, `FilterAsyncSelect`, and
-`FilterPopover` for the filters that do not earn a place in the bar, edited as
-a draft and applied in one URL write. Popover fields are typed by the filter
-type: a list filter takes `multiSelect`, a string filter takes `select`,
-`asyncSelect`, `date`, `switch` or `radio`, and `dependsOn` makes a cascade.
+The spec and hook in use, and the filter controls, are in
+`references/filters.md`.
 
 ### Tables
 
@@ -352,62 +284,21 @@ Everything table comes from `@/systems/table`: `DataTable`,
 `createColumnHelper` from `@tanstack/react-table`: the local ones carry the
 typed column meta.
 
-```tsx
-const helper = createColumnHelper<ClassListItem>();
-
-const columns = helper.columns([
-  helper.accessor('name', {
-    header: 'Class',
-    meta: { sticky: 'left', size: 200 },
-    cell: (info) => (
-      <RowLink to={`/academic/classes/${info.row.original.id}/edit`}>
-        {info.getValue()}
-      </RowLink>
-    ),
-  }),
-  helper.accessor('fee', {
-    header: 'Fee',
-    meta: { align: 'right' },
-    cell: (info) => formatMoney(info.getValue()),
-  }),
-  helper.accessor('remarks', { header: 'Remarks', meta: { hideBelow: 'md' } }),
-]);
-```
-
 Column meta: `align` (header, cells and skeleton together), `size` in px,
 `hideBelow: 'sm' | 'md' | 'lg'`, `sticky: 'left'` (leading columns only, and
 every sticky column but the last needs a `size`; dev warns otherwise).
 
-`DataTable` calls `cell` and `header` renderers as functions inside a stable
-component, so columns rebuilt on every render keep their cells mounted, and a
-renderer may call hooks. Keep a column's renderer the same for a given column
-id: swapping in one with different hooks breaks the hook order.
+Keep a column's renderer the same for a given column id: swapping in one with
+different hooks breaks the hook order.
 
-`DataTable` wiring on a list page:
+`isLoading` shows skeleton rows, `isFetching` dims the rows already there,
+which needs `placeholderData: keepPreviousData` on the list query.
+`onRowClick` is mouse only; `RowLink` in the column that names the record is
+the keyboard path. Row buttons use `RowActions` or `RowActionsMenu` from
+`@/systems/ui`.
 
-```tsx
-<DataTable
-  label="Classes"
-  columns={columns}
-  data={data?.data ?? []}
-  isLoading={isLoading}
-  isFetching={isFetching}
-  pagination={data?.pagination}
-  onPageChange={(page) => setFilter('page', page)}
-  onLimitChange={(limit) => setFilter('limit', limit)}
-  emptyState={<EmptyState icon={School} title="No classes" description="..." />}
-/>
-```
-
-`label` is the table's accessible name. `isLoading` shows skeleton rows,
-`isFetching` dims the rows already there, which needs `placeholderData:
-keepPreviousData` on the list query. `onRowClick` is mouse only; `RowLink` in the
-column that names the record is the keyboard path. Row buttons use `RowActions`
-or `RowActionsMenu` from `@/systems/ui`. The table sizes itself to the viewport
-through `--table-offset`. The shell's default fits the standard list page: a
-`PageHeader` with a description, a `FilterBar` and the pagination row. A page
-with different chrome above or below the table sets its own value on a
-wrapper, e.g. `[--table-offset:calc(var(--header-height)+2*var(--page-padding)+16rem)]`.
+The column helper, `DataTable` wiring on a list page and the table height
+(`--table-offset`) are in `references/tables.md`.
 
 ### Modals, confirm and toasts
 
@@ -516,35 +407,11 @@ id, take props for a preview of unsaved form values.
 
 **3. Every enum is a `createLookup`, and its union is derived from it.**
 
-```ts
-import { createLookup } from '@/lib/lookup/create-lookup';
-
-export const classStatusLookup = createLookup(
-  { active: { label: 'Active', badgeVariant: 'success' }, archived: { ... } },
-  'ClassStatus',
-);
-export type ClassStatus = (typeof classStatusLookup.values)[number];
-```
-
 Do NOT pass the generic (`createLookup<ClassStatus>(...)`) and declare the
-union by hand. The config is a `Record<T, ...>`, so naming `T` pins it to a
-union you wrote elsewhere and kills the inference, leaving the same values
-maintained in two places.
+union by hand.
 
 The one exception: when the union is not yours (`Role` from `@<scope>/shared`,
-generated types), import it and DO pass it as the generic. The
-`Record<T, ...>` constraint then fails to compile when the backend adds a value
-you have not handled, which is the whole point:
-
-```ts
-export const userRoleLookup = createLookup<Role>(
-  {
-    ADMIN: { label: 'Admin', badgeVariant: 'info' },
-    USER: { label: 'User', badgeVariant: 'secondary' },
-  },
-  'UserRole',
-);
-```
+generated types), import it and DO pass it as the generic.
 
 One lookup feeds every consumer: `.options` for selects and filters,
 `.toZodEnum(message?)` for the schema, `.resolve()` via `<LookupBadge>` for
@@ -552,9 +419,8 @@ rendering, `.values` for the filter spec whitelist, `.keys` for typo-safe
 comparisons and defaults. A `<entity>-status-badge.tsx` file is a mistake, and
 so is a hand-written `z.enum([...])` or `CLASS_STATUS_OPTIONS` array.
 
-`badgeVariant` is one of `BadgeVariant` (`default`, `secondary`, `outline`,
-`success`, `warning`, `info`, `destructive`), so a lookup cannot name a badge
-that does not render.
+Both forms of the call, why the generic breaks inference, and the
+`BadgeVariant` list are in `references/lookups.md`.
 
 **4. Features talk through `index.ts` only.**
 `@/features/students` is legal. `@/features/students/api/student.queries` is
@@ -581,16 +447,11 @@ The toast describes the operation, not the screen: "Class created" is true from
 a page, a sheet, or a row action, so it lives in the mutation hook. Navigation
 is screen-specific, so it goes in the caller.
 
-Error toasts are global. The `MutationCache` in `systems/api/query-client.ts`
-fires one for every rejected mutation, unless something already showed the
-error (a `Form` marks the errors it maps) or the mutation defines its own
-`onError`, which replaces it. So feature hooks define `onSuccess` only.
+Error toasts are global. So feature hooks define `onSuccess` only.
 
-An `onError` passed per call, `mutate(values, { onError })`, does not
-suppress the global toast: it never reaches the cache, so the person sees the
-toast and whatever that callback shows. A caller that shows the error itself
-opts out on the mutation with `meta: { handledError: true }`, or calls
-`markErrorHandled(error)` from `@/systems/api` on the error it put on screen.
+A caller that shows the error itself opts out on the mutation with
+`meta: { handledError: true }`, or calls `markErrorHandled(error)` from
+`@/systems/api` on the error it put on screen.
 
 Invalidate `KEYS.lists()`, not `KEYS.all`. `.all` also refetches every open
 detail query, which is wasted requests and sometimes a visible flash. Patch the
@@ -600,19 +461,10 @@ Invalidate the options key too when a write changes what a picker shows.
 it with `void`, or return it to make the mutation wait for the refetch.
 
 **8. All HTTP goes through `apiCall` or `apiCallPaginated`, from `*.api.ts`.**
-No bare `axios` or `fetch` in a feature, ever. The axios instance in
-`lib/api/api.ts` owns the base URL (`VITE_API_BASE_URL` plus `/api`) and turns
-every failure into an `ApiError`. It also attaches the access token (held in
-memory by `lib/api/access-token.ts`) and answers a 401 `UNAUTHORIZED` with one
-shared refresh and a single retry. A feature that bypasses `apiCall` opts out of
-all of it.
+No bare `axios` or `fetch` in a feature, ever.
 
-The API wraps every success body: `{ data }`, or `{ data, pagination, summary? }`
-for a paginated list. `apiCall<T>` unwraps `{ data }` and returns `T`;
-`apiCallPaginated<T, S>` checks the shape and returns `PaginatedResponse<T, S>`
-from `@<scope>/shared`. The single-resource envelope never leaves `*.api.ts`: no
-`.data.data`, and no hand-written envelope types in a feature. A body with the
-wrong shape becomes an `ApiError` with code `BAD_RESPONSE`.
+The single-resource envelope never leaves `*.api.ts`: no `.data.data`, and no
+hand-written envelope types in a feature.
 
 Always pass the generic: `apiCall<ClassDetail>(...)`. Without it the return is
 `unknown`, and a cast to silence it hides a typo'd field.
@@ -620,27 +472,18 @@ Always pass the generic: `apiCall<ClassDetail>(...)`. Without it the return is
 Void endpoints (delete, actions with no body) use `apiCallEmpty`, never
 `apiCall<void>`.
 
-`ApiCallOptions` is `method`, `body`, `params`, `signal`, `headers`. `body` and
-`params` are independent, so `POST /x?notify=true` works and so does `DELETE`
-with a body. Array params go as repeated keys (`a=1&a=2`), which the API reads
-as an array.
-
-Thread the `signal` React Query gives the `queryFn` into every GET. Without it
-a fast-typing user leaves a trail of in-flight requests and the last response to
-land wins, which is not always the last one sent. Leave it off mutations:
-aborting a half-sent POST just means you no longer know whether the server
-processed it.
+Thread the `signal` React Query gives the `queryFn` into every GET. Leave it
+off mutations: aborting a half-sent POST just means you no longer know whether
+the server processed it.
 
 **9. Errors are `ApiError`.**
-Every rejected request reaches callers as an `ApiError` from
-`lib/api/api-error.ts`: `status`, `code` (an `ERROR_CODES` value from
-`@<scope>/shared`, or `NETWORK_ERROR` / `BAD_RESPONSE` from the client),
-`message`, `fieldErrors`. Show one with `getErrorMessage(error)`, which keeps
-4xx messages and replaces 5xx and network failures with safe copy. Branch on
-`code`, never on the message text. A cancellation is not an `ApiError` and is
-not a failure.
+Show one with `getErrorMessage(error)`, which keeps 4xx messages and replaces
+5xx and network failures with safe copy. Branch on `code`, never on the
+message text. A cancellation is not an `ApiError` and is not a failure.
 
-Queries retry up to twice on anything but a 4xx.
+What the axios instance does, the response envelope, `ApiCallOptions`, the
+`ApiError` fields, retries and the global error toast are in
+`references/api-layer.md`.
 
 **10. Server state in React Query, client state in zustand.**
 Anything the API owns lives in the query cache. UI state that outlives a
