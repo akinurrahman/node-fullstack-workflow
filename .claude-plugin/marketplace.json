@@ -1,0 +1,15 @@
+{
+  "name": "node-fullstack-workflow",
+  "description": "An AI-driven workflow for building Node fullstack apps: standards, workflow skills and recipes. NestJS and React today, Express and Next later.",
+  "owner": {
+    "name": "Akinur Rahman",
+    "url": "https://github.com/akinurrahman"
+  },
+  "plugins": [
+    {
+      "name": "kit",
+      "source": "./plugins/kit",
+      "description": "An AI-driven workflow for building Node fullstack apps: standards, workflow skills and recipes. NestJS and React today, Express and Next later."
+    }
+  ]
+}
