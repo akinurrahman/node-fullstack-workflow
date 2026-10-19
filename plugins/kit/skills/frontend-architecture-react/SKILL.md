@@ -13,8 +13,8 @@ mode, TanStack Query 5 and Table 9, Tailwind 4 with shadcn on Base UI,
 react-hook-form with Zod 4, zustand, sonner, Vitest with msw, Oxlint. Every
 path below is relative to `apps/web/src` unless it says otherwise.
 
-The rules below are the whole spec. The reference implementation lives in
-`references/reference-implementation.md`.
+The rules below and the files in `references/` are the whole spec. The
+reference implementation lives in `references/reference-implementation.md`.
 
 ## How to use this skill
 
@@ -24,6 +24,16 @@ The rules below are the whole spec. The reference implementation lives in
    full entity? Read all of it.
 3. Build only what the request asks for, following the build order at the end.
 4. Run the definition-of-done list before reporting complete.
+
+### Which reference to read
+
+Each file below holds the detail for one area. The rules stay in this file.
+Read the file before you start work in its area, not after.
+
+| File                                     | Read it when                                                                                        |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `references/reference-implementation.md` | you build an entity, a page, a query, a mutation or a form. Read the sections that match            |
+| `references/routing-react-router.md`     | you add or change a route, a handle, a nav entry, route access, `app/router.ts` or `app/routes.tsx` |
 
 **If something you need is not covered here**, copy the nearest existing
 feature or system in the repo rather than inventing new structure, and say in
@@ -47,8 +57,7 @@ file:
 - Mutations own cache and the success toast; pages own navigation
 - Pages know about routes; components do not
 - Filter state through a `defineUrlFilters` spec
-- Route metadata in the `handle` on the route config object, never in a lazy
-  module
+- The routing rules marked structural in `references/routing-react-router.md`
 - Colors from semantic tokens only
 
 **Earn it. Needs a trigger before the file exists.** These are good patterns
@@ -420,73 +429,15 @@ Confirmations go through `useConfirm()` from `@/systems/confirmation`:
 `onConfirm`: the dialog shows pending, stays open on a rejection and lets the
 global toast report it.
 
-`ConfirmationHost` and the `Toaster` render beside the router, not inside it,
-so they survive any route error. Their content has no router context: no
-`Link` and no router hooks in a toast or a confirm description. Navigate from
-the callback, with a `navigate` the page already holds or `router.navigate`.
-Deferred callbacks (toast actions, timeouts) use absolute paths, since a
-relative path resolves against wherever the user is by then.
+Toasts and confirms render outside the router. What that means for links and
+navigation is in `references/routing-react-router.md`.
 
 ## Routing
 
-React Router 8, data mode. Import from `react-router` (`RouterProvider` from
-`react-router/dom`), never `react-router-dom`.
-
-Each feature exports a typed route array from `routes.tsx`:
-
-```tsx
-export const academicRoutes: AppRouteObject[] = [
-  {
-    path: 'academic/classes',
-    handle: {
-      title: 'Classes',
-      icon: School,
-      nav: { group: 'Academic', order: 0 },
-      roles: ['ADMIN'],
-      keywords: ['grades', 'sections'],
-    },
-    lazy: async () => ({
-      Component: (await import('./pages/classes/class-list-page')).default,
-    }),
-  },
-];
-```
-
-- `handle` lives on the config object. The document title, breadcrumbs, the
-  sidebar, the command palette and the access check all read it before the
-  route's chunk loads, and `AppRouteObject` refuses a `handle` returned from
-  `lazy`.
-- `lazy` is always the function form returning `{ Component }`. The object form
-  swallows a failed chunk in 8.4 and the route renders blank. Never
-  `React.lazy`.
-- Access is denied by default. A route without `public: true` needs a
-  signed-in user. `public` is only for pages that work with no user: login,
-  the 404. It is read from the deepest matched route that
-  has a handle, so it covers that route's handle-less children (an index
-  route), and a child with its own handle has to say `public` itself. A
-  public route takes no `roles`, which the type rejects, and never sits under
-  a parent with roles: there it counts as not public, and dev warns.
-- `roles` lists who may open the route, using `Role` from `@<scope>/shared`.
-  Absent means any signed-in user. It binds every child, and
-  `RouteAccessGate` shows `AccessDeniedState` when a signed-in user fails a
-  check, and sends a signed-out one to `/login?redirect=<path and query>`.
-  The sidebar and the palette run the same `canAccessRoute` check, so a route
-  the user cannot open is not listed.
-- `nav` makes the route a sidebar and palette entry. `nav.group` must be one of
-  `NAV_GROUPS` in `app/config.ts`; any other group warns in dev and sorts last.
-  A path with params cannot have `nav`.
-- `app/router.ts` lists every feature's routes once, in `pages`, or in
-  `barePages` for a screen outside the shell (login), and adds
-  `devRoutes` from `app/dev` behind `import.meta.env.DEV`. Adding a feature is
-  one import and one spread there. `app/routes.tsx` (`buildRoutes`) wraps the
-  pages in the root, layout and page levels: progress bar, shell, access gate,
-  error boundary, 404. Bare pages get the same gate and boundary, without the
-  shell.
-- Dev-only routes and pages live in `app/dev`, never in `features/`, and are
-  added only behind `import.meta.env.DEV` so the production build drops them.
-
-Ctrl/Cmd+K opens the command palette and Ctrl/Cmd+B toggles the sidebar. Never
-bind either.
+Routing lives in `references/routing-react-router.md`: routes,
+`AppRouteObject`, handles, access, `NAV_GROUPS`, `app/router.ts`, dev routes
+and the app shell. Read it before you add or change a route, a handle, a nav
+entry or route access, or anything in `app/router.ts` or `app/routes.tsx`.
 
 ## Import style
 
@@ -828,10 +779,9 @@ For each entity, skipping anything the request does not need:
 7. `<entity>.schema.ts` if there is a form, using `lookup.toZodEnum()`.
 8. Components, dumb first, form last.
 9. Pages, thin, with the three query states.
-10. Route entries in `routes.tsx`, with handles and lazy pages.
-11. `index.ts` exporting the route array, plus anything another feature needs.
-12. Spread the routes into `pages` (or `barePages`) in `app/router.ts`, add a
-    new nav group to `NAV_GROUPS`, then run the definition-of-done list.
+10. Routes, `index.ts` and `app/router.ts`: steps 10 to 12 are in
+    `references/routing-react-router.md`. Then run the definition-of-done
+    list.
 
 ## Definition of done
 
@@ -852,7 +802,6 @@ For each entity, skipping anything the request does not need:
     survived
 12. No em dashes in code, comments, copy, or your summary
 13. `index.ts` exports only what another feature or the router actually needs
-14. The route array is spread into `pages` or `barePages` in `app/router.ts`,
-    and every `nav.group` is in `NAV_GROUPS`
+14. The done check in `references/routing-react-router.md` passes
 15. Any new piece in `components/ui` or `systems` has its section on the theme
     preview page
