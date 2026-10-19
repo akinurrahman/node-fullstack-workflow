@@ -65,9 +65,9 @@ Each recipe is a folder under `plugins/kit/recipes/<name>/` with a `RECIPE.md` a
 
 ## Versioning
 
-The plugin's version lives in `plugins/kit/.claude-plugin/plugin.json`. Users stay on the cached copy until that string changes.
+Until v1.0.0, `plugin.json` has no `version` field, so each install tracks the current commit SHA on the configured branch. `claude plugin update kit@node-fullstack-workflow` fetches the latest commit.
 
-Release tags follow the `kit--v<version>` format. Create one with:
+Once v1.0.0 lands, `plugin.json` will set `version`, and users will stay on the cached copy until that string changes. Release tags follow the `kit--v<version>` format. Create one with:
 
 ```
 claude plugin tag ./plugins/kit --push
