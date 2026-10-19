@@ -1,7 +1,6 @@
 {
   "name": "kit",
   "description": "An AI-driven workflow for building Node fullstack apps: standards, workflow skills and recipes. NestJS and React today, Express and Next later.",
-  "version": "0.1.0",
   "author": {
     "name": "Akinur Rahman",
     "email": "hello@akinurrahman.com",
