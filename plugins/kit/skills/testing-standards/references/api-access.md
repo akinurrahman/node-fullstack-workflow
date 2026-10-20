@@ -52,6 +52,26 @@ The unknown-id row uses the domain code, never `NOT_FOUND`, which means no
 such route. The uppercase row runs once per route kind (one read, one
 write), the other rows on every route.
 
+## The ownership matrix
+
+Required for every resource whose domain hides rows from some callers
+(another owner's, a team the caller is not in). The rule is
+`kit:api-conventions`, rule 12. Sign in as a caller who may use the route,
+but not on this row.
+
+| Case                     | Request                                    | Expect                                                |
+| ------------------------ | ------------------------------------------ | ----------------------------------------------------- |
+| Hidden, read             | `GET /:id` on a row the caller may not see | 404 `<ENTITY>_NOT_FOUND`, body equal to an unknown id |
+| Hidden, every write      | each write and action route on that row    | 404 `<ENTITY>_NOT_FOUND`, the row unchanged           |
+| Hidden, list             | the list, hidden rows existing             | absent from `data`, not counted in `total`            |
+| Hidden, filter or search | a filter or search that matches only them  | 200, empty                                            |
+| Visible, not changeable  | each write on a row the caller can read    | 403 `FORBIDDEN` or the domain code, row unchanged     |
+| Changeable               | the owner, or a role that may change it    | covered by the route's success test                   |
+
+Assert the hidden-row 404 against the unknown-id 404 with exact equality:
+any difference tells a caller the row exists. A domain with no hidden rows
+says so in one comment above the access block instead.
+
 ## Public routes
 
 A route meant to be public gets one test that it answers without a token.

@@ -1,6 +1,6 @@
 ---
 name: api-conventions
-description: The HTTP contract between the web app and the api, independent of the backend framework - URL and route naming, HTTP methods and action routes (POST /:id/archive), the status code for each kind of endpoint, the success envelope ({ data } and { data, pagination }), the error body (statusCode, code, message, field errors and their path), error code naming, pagination and filter query params, sorting, JSON naming, ids, dates, nulls, unknown body keys, auth, CSRF and rate limit responses, the /api prefix and the health probes. Use this skill whenever adding or changing an endpoint, a request or response schema in the shared package, an error code, a list query, a status code, or anything a client sees on the wire, on either side of it, and whenever a client call or a backend disagrees about a response. Consult it even when the request sounds routine ("add a delete endpoint", "return the updated record", "add a sort to this list") - the contract here is project-specific and cannot be inferred from one side alone.
+description: The HTTP contract between the web app and the api, independent of the backend framework - URL and route naming, HTTP methods and action routes (POST /:id/archive), the status code for each kind of endpoint, the success envelope ({ data } and { data, pagination }), the error body (statusCode, code, message, field errors and their path), error code naming, pagination and filter query params, sorting, JSON naming, ids, dates, nulls, unknown body keys, auth, ownership (404 for a resource the caller cannot see, 403 for one they cannot change), CSRF and rate limit responses, the /api prefix and the health probes. Use this skill whenever adding or changing an endpoint, a request or response schema in the shared package, an error code, a list query, a status code, or anything a client sees on the wire, on either side of it, and whenever a client call or a backend disagrees about a response. Consult it even when the request sounds routine ("add a delete endpoint", "return the updated record", "add a sort to this list") - the contract here is project-specific and cannot be inferred from one side alone.
 ---
 
 # API conventions
@@ -46,7 +46,7 @@ This skill is the wire. It does not cover:
 | `references/urls-and-methods.md`       | you name a route, add an action, or nest a resource                            |
 | `references/pagination-and-queries.md` | you add a list, a filter, a search or a sort                                   |
 | `references/json-values.md`            | you add a field: naming, ids, dates, nulls, enums, how strict the schema is    |
-| `references/auth-csrf-rate-limit.md`   | you touch tokens, the refresh cookie, CSRF, throttling or the response headers |
+| `references/auth-csrf-rate-limit.md`   | you touch tokens or ownership, the refresh cookie, CSRF, throttling or headers |
 
 **If something you need is not covered here**, copy the nearest existing
 endpoint in the repo (the users routes first) and say in your summary which
@@ -202,6 +202,17 @@ marks as cross-site or same-site from an untrusted origin is
 `Retry-After` and `x-request-id`, are exposed to the web's origins through
 CORS.
 
+**12. A resource the caller cannot see is a 404; one they can see but not
+change is a 403.**
+When a rule hides a resource from the caller (another owner's project in an
+owner-scoped domain), every route on its id answers
+`404 <ENTITY>_NOT_FOUND` with the same body as an id that does not exist,
+so a caller cannot learn that it exists. A list leaves such rows out, and
+its `total` counts only what the caller can see. When the caller can see
+the resource but may not change it, a write answers 403: `FORBIDDEN`, or a
+domain code when the rule is specific. Detail in
+`references/auth-csrf-rate-limit.md`.
+
 ## Contract checks
 
 Run these before reporting complete. The general gate (typecheck, lint,
@@ -216,7 +227,9 @@ tests, format) is `kit:definition-of-done`.
 7. Paths are plural kebab-case nouns, actions `POST /:id/<verb>`, under `/api`
 8. Lists extend `paginationQuerySchema`; arrays are repeated keys
 9. Response fields: camelCase, lowercase ids, ISO UTC instants, `null` present
-10. No existing route changed its status, body shape or code
+10. A resource the caller cannot see answers 404 like an unknown id; one
+    they can see but not change answers 403
+11. No existing route changed its status, body shape or code
 
 ## Who produces what
 

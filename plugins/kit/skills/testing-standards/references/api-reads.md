@@ -30,6 +30,7 @@ on top (`api-access.md`). What each answer must look like is
 | Bad array item           | `?<filter>=A&<filter>=NOPE`                  | 400 with path `<filter>.1`                            |
 | Unknown sort field       | `?sort=nope`                                 | 400 on `sort.0`                                       |
 | Unknown param            | `?_=123`                                     | 200, ignored                                          |
+| Hidden rows, when any    | rows the caller may not see exist            | absent from `data`, not counted in `total`            |
 | Summary, when declared   | the list carries a summary                   | the counts match the whole filtered set, not the page |
 
 Order rows need data that cannot tie on the sort key: create the rows in
@@ -50,6 +51,7 @@ A filter that maps a URL value to another query value (a `status` of
 | Uppercase id    | the existing id in uppercase | 200, the id lowercase in the body                          |
 | Bad id          | `not-a-uuid`                 | 400 on `id` (the id matrix)                                |
 | Unknown id      | an unused UUID               | 404 `<ENTITY>_NOT_FOUND` (the id matrix)                   |
+| Hidden          | a row the caller may not see | 404, the same body as an unknown id (ownership matrix)     |
 
 `/me` and other self routes are reads too: the caller's own record, and 401
 without a token.

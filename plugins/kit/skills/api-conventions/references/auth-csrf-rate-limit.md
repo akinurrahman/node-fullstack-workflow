@@ -44,6 +44,22 @@ but a rule forbids this target. `CSRF_REJECTED` for CSRF, below. The three
 have distinct codes on purpose, so a client and a support log can tell a
 missing permission from a blocked request.
 
+## Ownership
+
+Some domains hide a resource from callers who do not own it, or are not
+members of it. The answer depends on whether the caller may see it:
+
+| Caller                        | Read                     | Write                     | List     |
+| ----------------------------- | ------------------------ | ------------------------- | -------- |
+| May not see it                | 404 `<ENTITY>_NOT_FOUND` | 404 `<ENTITY>_NOT_FOUND`  | left out |
+| May see it, may not change it | 200                      | 403 `FORBIDDEN` or domain | included |
+| May change it                 | 200                      | 2xx                       | included |
+
+The 404 for a hidden resource has exactly the body of an id that does not
+exist, so the response says nothing about whether it exists. A list's `total` counts only the rows the caller may see. A 403 is
+only for a resource the caller can already read: telling them they may not
+change it reveals nothing new.
+
 ## CSRF
 
 A state-changing request (`POST`, `PUT`, `PATCH`, `DELETE`) is rejected when

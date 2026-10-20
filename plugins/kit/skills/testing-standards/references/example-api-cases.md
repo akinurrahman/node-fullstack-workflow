@@ -30,6 +30,13 @@ valid body, so the id is the only thing wrong.
 
 The first 401, 403 and 404 assert the whole body.
 
+Every signed-in user sees every project, so there are no hidden rows; a
+comment above the block says so, and the USER 403 column is the "visible,
+not changeable" row. If projects became owner-scoped, the ownership block
+in `api-access.md` would add: another owner's project answers all five `:id`
+routes with a 404 equal to the unknown-id body, and the list leaves it out
+of `data` and `total`.
+
 ## `GET /api/projects`
 
 | `it`                                              | Request                                                                                 |
