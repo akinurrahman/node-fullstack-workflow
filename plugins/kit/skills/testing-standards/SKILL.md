@@ -1,6 +1,6 @@
 ---
 name: testing-standards
-description: What must be tested and how much, at every level of the monorepo - shared schema specs, api unit specs, api e2e specs written in HTTP terms (method, path, status, code), web unit and component specs, and browser tests. Covers the required cases per kind of endpoint (list, read, create, update, action, delete) and per web piece (page, form, table, filters, row action), the access and bad-id matrices, race tests and what they can prove, mutation checks, test data and fixtures, naming, what not to test, and flaky tests. Use this skill whenever writing or reviewing a test, adding an endpoint, a shared schema, a page, a form, a table or a filter, fixing a bug, or deciding whether a change needs a unit, e2e or browser test. Consult it even when the request sounds routine ("add a test for this", "cover the new endpoint") - the required case lists here are project-specific and cannot be inferred from the existing specs.
+description: What must be tested and how much, at every level of the monorepo - shared schema specs, api unit specs, api e2e specs written in HTTP terms (method, path, status, code), web unit and component specs, and browser tests. Covers the required cases per kind of endpoint (list, read, create, update, action, delete) and per web piece (page, form, table, filters, row action), the access, bad-id and ownership matrices, race tests and what they can prove, mutation checks, test data and fixtures, naming, what not to test, and flaky tests. Use this skill whenever writing or reviewing a test, adding an endpoint, a shared schema, a page, a form, a table or a filter, fixing a bug, or deciding whether a change needs a unit, e2e or browser test. Consult it even when the request sounds routine ("add a test for this", "cover the new endpoint") - the required case lists here are project-specific and cannot be inferred from the existing specs.
 ---
 
 # Testing standards
@@ -86,7 +86,10 @@ same change.
 Send a valid body on the id rows, so the id is the only thing wrong. One
 table-driven block per module covers every route, so a new route is one
 row. A public route instead gets a test that it answers without a token.
-Detail in `references/api-access.md`.
+A domain that hides rows from some callers adds the ownership rows: a
+hidden row answers every route with the unknown-id 404, exactly, and a row
+the caller can see but not change answers a write with 403
+(`kit:api-conventions`, rule 12). Detail in `references/api-access.md`.
 
 **2. Every error code a route can return has a test.**
 Each domain code, each 409, and `VALIDATION_FAILED` for each input with a
@@ -215,7 +218,8 @@ with a comment saying why. Never commit `.only` or `.skip`.
 Run these before reporting complete. The general gate (typecheck, lint,
 tests, format) is `kit:definition-of-done`.
 
-1. Every new route has its access rows, and every `:id` route its id rows
+1. Every new route has its access rows, every `:id` route its id rows, and
+   an owner-scoped resource its ownership rows
 2. Every error code a new route returns has a test; the first asserts the body
 3. Every write checks stored state; every refused write checks nothing changed
 4. The case list for the endpoint kind or web piece is covered, or the gap is

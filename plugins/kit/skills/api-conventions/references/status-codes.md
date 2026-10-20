@@ -49,7 +49,7 @@ exactly as if it had done the work: 200 with the resource, unchanged.
 | 403    | `FORBIDDEN`              | signed in, but the role does not allow it                                  |
 | 403    | `CSRF_REJECTED`          | a cross-site state-changing request                                        |
 | 403    | a domain code            | a rule about who may do this to what (`CANNOT_DISABLE_SELF`)               |
-| 404    | `<ENTITY>_NOT_FOUND`     | the id in the path does not exist                                          |
+| 404    | `<ENTITY>_NOT_FOUND`     | the id in the path does not exist, or the caller may not see it            |
 | 404    | `NOT_FOUND`              | no route matches the path, or not with this method                         |
 | 409    | a domain code            | a uniqueness or state conflict (`PROJECT_NAME_TAKEN`, `LAST_ADMIN`)        |
 | 409    | `CONFLICT`               | a uniqueness conflict the domain check did not catch (a race)              |
