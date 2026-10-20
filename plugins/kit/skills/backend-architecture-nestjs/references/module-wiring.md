@@ -46,7 +46,9 @@ the JSON 404 for unmatched paths. The e2e helper calls the same function.
 Nothing registers routes or middleware after it.
 
 A new route lands under `/api` automatically. Only the probe paths listed in
-`UNPREFIXED_PATHS` (`config/http.config.ts`) are outside it.
+`UNPREFIXED_PATHS` (`config/http.config.ts`) are outside it. A new probe
+needs an entry there and `@SkipThrottle()` on its method; ordinary endpoints
+never skip the throttler.
 
 ## Breaking a cycle
 

@@ -192,8 +192,9 @@ is in `references/dtos.md`.
 
 **7. Every route needs a token unless it says otherwise.**
 Three global guards run in order: `ThrottlerGuard`, `AuthGuard` (deny by
-default), `RolesGuard`. Who may call an endpoint is said with decorators
-only:
+default), `RolesGuard`. Only the health probes skip the throttler, with
+`@SkipThrottle()`; ordinary endpoints never do. Who may call an endpoint is
+said with decorators only:
 
 - Nothing: any signed-in user, checked from the token alone.
 - `@Public()`: no token. Probes and login.
