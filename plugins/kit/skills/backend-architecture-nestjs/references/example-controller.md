@@ -88,6 +88,7 @@ export class ProjectsController {
 
   @Post()
   @ApiDataResponse(PublicProjectDto, { status: HttpStatus.CREATED })
+  // 403 is the CSRF check, which rejects cross-site writes.
   @ApiErrorResponses(400, 401, 403, 409, 429)
   create(
     @CurrentUser() actor: AuthUser,

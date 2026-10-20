@@ -68,6 +68,9 @@ database: the spec runs in milliseconds and cannot leak state.
 Fixtures are typed with the Prisma model, through `import type`, so a column
 added to the model breaks the fixture at compile time instead of at runtime.
 Errors are asserted on `statusCode` and `code`, the fields the filter reads.
+A list method returns a `PaginatedResult`: assert on `.items` and
+`.pagination` (`page`, `limit`, `total`, `totalPages`, `hasPrevious`,
+`hasNext`). There is no `.meta`.
 
 When the repository has a transaction, the stub's `transaction` runs the
 callback with the same stubs, typed with `satisfies <Entities>Transaction`

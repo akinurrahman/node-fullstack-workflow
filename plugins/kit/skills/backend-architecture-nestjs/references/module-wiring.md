@@ -22,8 +22,9 @@ export class UsersModule {}
   `PrismaModule` is `@Global()` and `ConfigModule` is global, so neither is
   ever imported here.
 - `providers`: repository, then service.
-- `exports`: what another module injects, each with a comment saying who and
-  why (rule 9). Left out when nobody does.
+- `exports`: left out until another module needs something. Then the
+  service; the repository only for data the service hides on purpose. Each
+  entry with a comment saying who and why (rule 9).
 
 Then add the module to `imports` in `app.module.ts`, next to the other domain
 modules.

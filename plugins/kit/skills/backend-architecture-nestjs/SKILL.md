@@ -183,9 +183,10 @@ The global `ZodValidationPipe` validates every `@Body()`, `@Query()` and
 `@Param()` typed with a DTO: no validation code in the api, no
 class-validator, no pipe per route.
 
-A list query schema extends `paginationQuerySchema` with its filters. Service
-methods take the shared inferred types (`CreateProjectInput`), never the DTO
-classes.
+A list with no filters uses `paginationQuerySchema` as is; the first filter
+turns it into `paginationQuerySchema.extend({ ... })`. Never an empty
+`extend({})`. Service methods take the shared inferred types
+(`CreateProjectInput`), never the DTO classes.
 
 Every endpoint carries its Swagger response decorators. Which ones, and how,
 is in `references/dtos.md`.
@@ -225,12 +226,11 @@ methods. The service never sees `$transaction` or a Prisma client. A single
 write needs no transaction, and neither does a check a unique index already
 holds. Detail in `references/repositories.md`.
 
-**9. Other modules use your exported service.**
-By default a module exports its service, and a module that needs it imports
-the module and injects the service. Export the repository only when the
-caller needs data the service hides on purpose: auth needs `passwordHash`,
-which `toPublicUser` drops. Every `exports` entry carries a comment saying
-who uses it and why. A module nobody else uses exports nothing.
+**9. A module exports nothing unless another module needs it.**
+When one does, export the service; the other module imports the module and
+injects it. Export the repository only when the caller needs data the service
+hides on purpose: auth needs `passwordHash`, which `toPublicUser` drops. Every
+`exports` entry carries a comment saying who uses it and why.
 
 Two modules that would import each other: move the provider they share into
 its own small module (`PasswordModule`), rather than `forwardRef`. Type-only
