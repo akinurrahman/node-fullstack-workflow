@@ -22,23 +22,28 @@ export type ApiCallOptions = {
   headers?: Record<string, string>;
 };
 
-export async function apiCall<T>(
+export async function apiCall<T extends {} | null>(
   endpoint: string,
   options?: ApiCallOptions,
 ): Promise<T>;
+export async function apiCallEmpty(
+  endpoint: string,
+  options?: ApiCallOptions,
+): Promise<void>;
 export async function apiCallPaginated<T, S = undefined>(
   endpoint: string,
   options?: ApiCallOptions,
 ): Promise<PaginatedResponse<T, S>>;
 ```
 
-`apiCall` unwraps `{ data }`. `apiCallPaginated` checks for `data` as an array
-and a valid `pagination`. Either one throws an `ApiError` with code
+`apiCall` unwraps `{ data }`; `T` excludes `undefined`, so an endpoint that
+answers 204 uses `apiCallEmpty`. `apiCallPaginated` checks for `data` as an
+array and a valid `pagination`. Each throws an `ApiError` with code
 `BAD_RESPONSE` for a body that does not match.
 
 ### `lib/api/api-error.ts`
 
-`ApiError` (`status`, `code`, `message`, `fieldErrors`), `isApiError`, and
+`ApiError` (`status`, `code`, `message`, `fieldErrors`, `retryAfter`), `isApiError`, and
 `getErrorMessage`, which keeps a 4xx message and gives safe copy for 5xx,
 network and malformed responses. `ErrorState` and `Form` both use it.
 

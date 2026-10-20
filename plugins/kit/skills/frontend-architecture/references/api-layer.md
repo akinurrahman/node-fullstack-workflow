@@ -34,9 +34,13 @@ land wins, which is not always the last one sent.
 ## Errors and retries
 
 Every rejected request reaches callers as an `ApiError` from
-`lib/api/api-error.ts`: `status`, `code` (an `ERROR_CODES` value from
-`@<scope>/shared`, or `NETWORK_ERROR` / `BAD_RESPONSE` from the client),
-`message`, `fieldErrors`.
+`lib/api/api-error.ts`: `status`, `code`, `message`, `fieldErrors`, and
+`retryAfter` (seconds, from the `Retry-After` header of a 429). `code` is
+what the api sent: a generic `ERROR_CODES` value, a domain code from a
+`<DOMAIN>_ERROR_CODES` object (`USER_NOT_FOUND`), or an HTTP status name for
+an error the api did not raise on purpose (`PAYLOAD_TOO_LARGE`). The client
+adds `NETWORK_ERROR` and `BAD_RESPONSE`. A code you do not know is handled
+by its `status`. The full list of what the api sends is `kit:api-conventions`.
 
 Queries retry up to twice on anything but a 4xx.
 
