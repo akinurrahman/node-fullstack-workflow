@@ -203,8 +203,7 @@ hand-written envelope types in a feature.
 Always pass the generic: `apiCall<ClassDetail>(...)`. Without it the return is
 `unknown`, and a cast to silence it hides a typo'd field.
 
-Void endpoints (delete, actions with no body) use `apiCallEmpty`, never
-`apiCall<void>`.
+Endpoints that answer 204 use `apiCallEmpty`, never `apiCall<void>`.
 
 Thread the `signal` React Query gives the `queryFn` into every GET. Leave it
 off mutations: aborting a half-sent POST just means you no longer know whether
