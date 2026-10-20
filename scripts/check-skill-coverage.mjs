@@ -30,7 +30,12 @@ for (let i = 0; i < args.length; i++) {
   else positional.push(args[i]);
 }
 const explicit = lists.baseline !== null || lists.files !== null;
-if (!commit || (explicit ? positional.length || !lists.baseline?.length || !lists.files?.length : !positional.length)) {
+if (
+  !commit ||
+  (explicit
+    ? positional.length || !lists.baseline?.length || !lists.files?.length
+    : !positional.length)
+) {
   console.error(usage);
   process.exit(2);
 }
@@ -63,7 +68,8 @@ function units(text) {
     if (/^\s*```/.test(line)) {
       flush();
       const body = [];
-      for (i++; i < lines.length && !/^\s*```/.test(lines[i]); i++) body.push(lines[i]);
+      for (i++; i < lines.length && !/^\s*```/.test(lines[i]); i++)
+        body.push(lines[i]);
       out.push('CODE: ' + collapse(body.join('\n')));
       continue;
     }
@@ -75,7 +81,15 @@ function units(text) {
     if (/^\s*\|/.test(line)) {
       flush();
       if (/^\s*\|[\s|:-]+\|\s*$/.test(line)) continue;
-      out.push('ROW: ' + line.trim().replace(/^\||\|$/g, '').split('|').map(collapse).join(' | '));
+      out.push(
+        'ROW: ' +
+          line
+            .trim()
+            .replace(/^\||\|$/g, '')
+            .split('|')
+            .map(collapse)
+            .join(' | '),
+      );
       continue;
     }
     if (/^\s*$/.test(line) || /^---\s*$/.test(line)) {
@@ -96,10 +110,14 @@ function units(text) {
 
 function atCommit(file) {
   try {
-    return execFileSync('git', ['show', `${commit}:./${file.replace(/\\/g, '/')}`], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    });
+    return execFileSync(
+      'git',
+      ['show', `${commit}:./${file.replace(/\\/g, '/')}`],
+      {
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    );
   } catch {
     return null;
   }
@@ -118,28 +136,43 @@ for (const f of baselineFiles) {
   baseline.push(...units(text));
 }
 const fresh = [];
-for (const f of files) for (const u of units(readFileSync(f, 'utf8'))) fresh.push({ f, u });
-const allow = new Set(opts.allow ? units(readFileSync(opts.allow, 'utf8')) : []);
-const replaced = new Set(opts.replaced ? units(readFileSync(opts.replaced, 'utf8')) : []);
+for (const f of files)
+  for (const u of units(readFileSync(f, 'utf8'))) fresh.push({ f, u });
+const allow = new Set(
+  opts.allow ? units(readFileSync(opts.allow, 'utf8')) : [],
+);
+const replaced = new Set(
+  opts.replaced ? units(readFileSync(opts.replaced, 'utf8')) : [],
+);
 
 const freshSet = new Set(fresh.map((x) => x.u));
 const baseSet = new Set(baseline);
 const missing = baseline.filter((u) => !freshSet.has(u) && !replaced.has(u));
 const added = fresh.filter((x) => !baseSet.has(x.u) && !allow.has(x.u));
 const unusedAllow = [...allow].filter((u) => !freshSet.has(u));
-const unusedReplaced = [...replaced].filter((u) => !baseSet.has(u) || freshSet.has(u));
+const unusedReplaced = [...replaced].filter(
+  (u) => !baseSet.has(u) || freshSet.has(u),
+);
 
 console.log(`baseline: ${commit} (${inBaseline.join(', ') || 'no files'})`);
 console.log(`files checked: ${files.join(', ')}`);
-console.log(`baseline units: ${baseline.length}, new units: ${fresh.length}, allowlisted: ${allow.size}`);
-console.log(`declared replaced (baseline units reworded on purpose): ${replaced.size}`);
+console.log(
+  `baseline units: ${baseline.length}, new units: ${fresh.length}, allowlisted: ${allow.size}`,
+);
+console.log(
+  `declared replaced (baseline units reworded on purpose): ${replaced.size}`,
+);
 for (const u of replaced) console.log('  REPLACED  ' + u);
-console.log(`forward (baseline unit missing from new files): ${missing.length}`);
+console.log(
+  `forward (baseline unit missing from new files): ${missing.length}`,
+);
 for (const u of missing) console.log('  MISSING  ' + u);
 console.log(`reverse (new unit not in baseline or allowlist): ${added.length}`);
 for (const x of added) console.log(`  NEW  [${x.f}] ${x.u}`);
 console.log(`allowlist entries not used: ${unusedAllow.length}`);
 for (const u of unusedAllow) console.log('  UNUSED  ' + u);
-console.log(`replaced entries not removed from the baseline: ${unusedReplaced.length}`);
+console.log(
+  `replaced entries not removed from the baseline: ${unusedReplaced.length}`,
+);
 for (const u of unusedReplaced) console.log('  UNUSED  ' + u);
 process.exit(missing.length || added.length ? 1 : 0);
