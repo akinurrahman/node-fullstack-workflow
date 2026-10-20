@@ -8,7 +8,9 @@ Detail for rule 7 in `SKILL.md`. Paths are relative to `apps/api/src`.
 route:
 
 1. `ThrottlerGuard`: the rate limit, per IP per route. First, so rejected
-   credentials still count.
+   credentials still count. Only the probes `GET /health` and
+   `GET /health/ready` skip it, with `@SkipThrottle()` on the method;
+   `GET /api/health/status` in the same controller stays throttled.
 2. `AuthGuard` (`auth/auth.guard.ts`): skips a route marked `@Public()`.
    Otherwise reads `Authorization: Bearer <token>`, verifies it with
    `AccessTokenService`, and sets `req.user`. No valid token is a 401. No
