@@ -264,7 +264,8 @@ A component that receives data as props renders it. It does not check
 1. `pnpm typecheck` passes
 2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
    import rule
-3. `pnpm test` passes, with tests for the new behaviour
+3. `pnpm test` passes, with the cases `kit:testing-standards` requires for
+   the new behaviour
 4. Every `apiCall` and `apiCallPaginated` has an explicit generic
 5. Every GET threads `signal`; no mutation does
 6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
@@ -634,7 +635,8 @@ entry or route access, or anything in `app/router.ts` or `app/routes.tsx`.
   to run the real startup refresh). A test about access or roles passes its
   `user` explicitly. `render-with-router` and `render-with-query` cover smaller
   pieces. `test/auth-fixtures.ts` has test users and auth msw handlers.
-- Mutation-check new tests: break the code, confirm a test fails, restore.
+- Which cases to write, mutation checks, how strict the msw fake must be and
+  when a browser test is needed: `kit:testing-standards`.
 
 ## Build order
 
@@ -657,4 +659,5 @@ For each entity, skipping anything the request does not need:
 9. Pages, thin, with the three query states.
 10. Routes, `index.ts` and `app/router.ts`: steps 10 to 12 are in
     `references/routing-react-router.md`. Then check it works in the
-    browser, and run the definition-of-done list.
+    browser, add what `kit:testing-standards` requires (a new page joins the
+    browser render check), and run the definition-of-done list.
