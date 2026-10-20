@@ -48,7 +48,8 @@ interface changes; a repository without a transaction is a plain object of
 with `import type`. Assert on the thrown error's `statusCode` and `code` with
 `rejects.toMatchObject`. Something that needs a real database (a lock, a
 unique index) is covered by the e2e spec instead, and the unit spec says so
-in one comment.
+in one comment naming that e2e test. Which cases the e2e spec then needs,
+races included, is `kit:testing-standards` (rules 6 and 11).
 
 ## E2E specs
 
