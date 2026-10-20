@@ -65,7 +65,8 @@ export const createProjectSchema = z.strictObject({
   description: projectDescriptionSchema.optional(),
 });
 
-// `description: null` clears it.
+// `description: null` clears it. The "at least one field" refine only applies
+// with two or more optional fields; with one, that field is required instead.
 export const updateProjectSchema = z
   .strictObject({
     name: projectNameSchema.optional(),
@@ -85,6 +86,8 @@ export const publicProjectSchema = z.object({
   updatedAt: z.iso.datetime(),
 });
 
+export type ProjectErrorCode =
+  (typeof PROJECT_ERROR_CODES)[keyof typeof PROJECT_ERROR_CODES];
 export type ProjectStatus = z.infer<typeof projectStatusSchema>;
 export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
 export type CreateProjectInput = z.input<typeof createProjectSchema>;

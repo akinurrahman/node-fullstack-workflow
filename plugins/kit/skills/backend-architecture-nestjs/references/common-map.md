@@ -11,7 +11,7 @@ common/
 │   └── all-exceptions.filter.ts  the one APP_FILTER; toErrorResponse for code outside Nest
 ├── interceptors/
 │   └── response.interceptor.ts   the one APP_INTERCEPTOR; wraps successful returns
-├── pagination/              paginate(), PaginatedResult, PaginationQueryDto (tests only)
+├── pagination/              paginate(), PaginatedResult, PaginationQueryDto (lists with no filters)
 ├── swagger/                 ApiDataResponse, ApiPaginatedResponse, ApiErrorResponses,
 │                            docs-only DTOs for the pagination meta and the error body
 ├── middleware/              basicAuth for the Swagger docs, a plain Express middleware

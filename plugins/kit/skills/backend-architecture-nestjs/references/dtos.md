@@ -47,9 +47,11 @@ One line per class, nothing else. The response DTO exists for the docs only.
 - Body: `@Body() body: CreateProjectDto`.
 - Params: `@Param() { id }: ProjectIdParamDto`, one object schema for all
   route params.
-- Query: `@Query() query: ListProjectsQueryDto`. A list query schema is
-  `paginationQuerySchema.extend({ ...filters })`, so `page` and `limit` come
-  with it. There is no separate pagination DTO on a real list route.
+- Query: a list with no filters takes `PaginationQueryDto` from
+  `common/pagination`, over `paginationQuerySchema` as is. The first filter
+  gets its own `paginationQuerySchema.extend({ ...filters })` and
+  `List<Entities>QueryDto` (`ListProjectsQueryDto`). Never an empty
+  `extend({})`.
 
 The global `ZodValidationPipe` (`APP_PIPE` in `app.module.ts`) parses each of
 them. The handler receives the parsed output, defaults and transforms
