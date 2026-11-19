@@ -6,16 +6,29 @@ watch it fail.
 
 ## The steps
 
-1. Run the new test green.
-2. Make the smallest change to the code under test that the test should
+1. Start from a clean tree, or save a copy of the file you will break.
+2. Run the new test green.
+3. Make the smallest change to the code under test that the test should
    catch (the table below).
-3. Run the test. It must fail, and its message must point at the rule, not
+4. Run the test. It must fail, and its message must point at the rule, not
    at a crash somewhere else.
-4. Restore the code. Run the test green again.
-5. Write down what you broke and which test failed, for the report.
+5. Undo the break from the saved copy, or by reverting your one edit by
+   hand, never with git (below). Check that `git status` shows only what was
+   there before step 3. Run the test green again.
+6. Write down what you broke and which test failed, for the report.
 
 Break the code, never the test. A test that still passes is rewritten, then
 checked again.
+
+## Runs that do not count
+
+| Trap                               | Why                                           | Do                                     |
+| ---------------------------------- | --------------------------------------------- | -------------------------------------- |
+| `git restore` or `git checkout --` | it wipes every uncommitted change in the file | restore from the saved copy            |
+| A run that reports 0 tests         | an empty `-t` pattern ran nothing, "0 failed" | count a run only if its test count > 0 |
+
+Check the test count in every run, the broken one and the restored one. A
+run with 0 tests proves nothing either way.
 
 ## What to break
 
