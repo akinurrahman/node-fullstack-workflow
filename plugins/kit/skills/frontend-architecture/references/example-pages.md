@@ -170,9 +170,8 @@ export default function ClassListPage() {
 
 `SearchInput` owns its own debounce, so every list page in the app gets the same
 behaviour. Changing several filters at once goes through `setFilters({ ... })`,
-which is one navigation rather than three. Every filter write replaces the
-current history entry, so filters never add history: Back leaves the list
-rather than stepping through earlier searches.
+which is one navigation rather than three. Which writes add a history entry
+is in `filters.md`, History.
 
 A filtered list that comes back empty offers "Clear filters" right in the
 empty state, which calls `resetFilters` and so clears paging too. An empty
