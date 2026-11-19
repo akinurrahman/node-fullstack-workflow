@@ -33,11 +33,11 @@ that the schema lacks is one too.
 ```ts
 import { Injectable } from '@nestjs/common';
 import {
-  type CreateProjectInput,
+  type CreateProjectValues,
   type ListProjectsQuery,
   PROJECT_ERROR_CODES,
   type PublicProject,
-  type UpdateProjectInput,
+  type UpdateProjectValues,
 } from '@<scope>/shared';
 import type { AuthUser } from '../auth/auth.types.js';
 import { ConflictError, NotFoundError } from '../common/errors/index.js';
@@ -84,7 +84,7 @@ export class ProjectsService {
   // the same name ends in P2002, which the global filter answers with 409.
   async create(
     actor: AuthUser,
-    input: CreateProjectInput,
+    input: CreateProjectValues,
   ): Promise<PublicProject> {
     if (await this.projects.findByName(input.name)) throw nameTaken();
     const project = await this.projects.create({
@@ -95,7 +95,7 @@ export class ProjectsService {
     return toPublicProject(project);
   }
 
-  async update(id: string, input: UpdateProjectInput): Promise<PublicProject> {
+  async update(id: string, input: UpdateProjectValues): Promise<PublicProject> {
     const project = await this.projects.findById(id);
     if (!project) throw projectNotFound();
     if (input.name !== undefined && input.name !== project.name) {
