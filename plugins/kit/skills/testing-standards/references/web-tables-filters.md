@@ -36,7 +36,11 @@ One row per filter, unless noted.
 | Search debounce            | type a term                            | one request with the whole term, not one per key             |
 | Page reset                 | change a filter on page 2              | the page param gone                                          |
 | Clear                      | clear filters                          | the URL empty and an unfiltered request                      |
-| Back and forward           | change a filter, then go back          | the old filter, control and rows                             |
+| Back and forward           | change a filter, then go back, forward | the old filter, control and rows, then the new ones again    |
+
+The back and forward row applies only to a filter whose write pushes a
+history entry. Which writes push is `kit:frontend-architecture`,
+`references/filters.md`; a typed search replaces, so it gets no such row.
 
 Take the cap from the shared constant, never a typed number, so the test
 moves with the schema.
