@@ -87,3 +87,27 @@ test-only controller for a route the app does not have yet
 Arrange data with `createUser(prisma, { role })` and sign in with
 `loginCookie(app, email)` from the same helper file. The spec uses `prisma`
 directly to arrange and inspect rows; module code never does.
+
+## Import app classes from the app's copy
+
+`createApp()` resets modules, so each app runs on a fresh copy of every app
+module. A class imported at the top of the spec is a different class from
+the one the app uses, and `instanceof` against it fails. The exception
+filter matches `AppError` and the interceptor matches `paginate()`'s
+result that way, so a test-only controller that throws or returns them
+from a top-level import gets a 500 or an unwrapped body.
+
+Import them after the app starts, from the app's copy:
+
+```ts
+let errors: typeof import('./../src/common/errors/index.js');
+
+beforeEach(async () => {
+  ({ app } = await createApp({ controllers: [ErrorsTestController] }));
+  errors = await import('./../src/common/errors/index.js');
+});
+```
+
+The same goes for `paginate` from `src/common/pagination`, and for anything
+else the app checks with `instanceof`. Types are safe to import at the top
+with `import type`.
