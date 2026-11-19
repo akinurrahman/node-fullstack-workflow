@@ -19,6 +19,18 @@ const { filters, setFilter, isFiltered, resetFilters } =
 
 A narrowing write clears the page cursor inside the hook.
 
+## History
+
+| Write                                                 | History | So                                           |
+| ----------------------------------------------------- | ------- | -------------------------------------------- |
+| Typed search (`SearchInput`)                          | replace | no entry per keystroke or per debounced term |
+| Paging and page size                                  | push    | Back returns to the previous page            |
+| A discrete filter (status, role, a select, a switch)  | push    | Back and Forward restore it, rows and all    |
+| `setFilters`, a popover apply, `resetFilters` (clear) | push    | one entry for the whole change               |
+
+The choice lives in `systems/filters`, not in each page. A discrete write
+that also clears the page is one push, not two.
+
 ## Controls
 
 The controls: `FilterBar` (row layout, "Clear filters", page actions),
