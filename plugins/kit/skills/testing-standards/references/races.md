@@ -27,14 +27,28 @@ check) has no race to test.
 
 Never assert which request won, or timing.
 
+## It must fail without its guard
+
+A race test that passes with its guard removed proves nothing. Remove the
+lock, the transaction or the mapping, run the test several times, and see
+it fail (`mutation-checks.md`). If it never fails, the requests are not
+overlapping: force them to, then check again.
+
 ## Making the requests overlap
 
-Two requests sent at once usually run one after the other, and a test that
-never overlaps proves nothing. Hold each request after the checks that come
-before the rule (auth, role), release both once both have arrived, and let
-them race inside the rule. A request that never reaches the rule fails the
-wrong way: a role check turning the loser into a 403 hides the rule under
-test.
+Two requests sent at once usually run one after the other.
+
+| The route                                               | Do                                    |
+| ------------------------------------------------------- | ------------------------------------- |
+| has a slow step before the write (password hashing)     | no hold; the slow step overlaps them  |
+| has none: the pre-check and the write follow each other | hold both, so both pass the pre-check |
+
+A hold stops each request after the pre-check the rule reads (the count,
+the existing row) and before its write. Release both once both have
+arrived, so both have passed the pre-check before either writes. Checks
+that come before the rule (auth, role) run before the hold. A request that
+never reaches the rule fails the wrong way: a role check turning the loser
+into a 403 hides the rule under test.
 
 Getting a request into the window on purpose (the caller disabled between
 the role check and the rule) is the same tool. Use it for a branch the
@@ -48,8 +62,11 @@ test carries a comment that says:
 
 - what invariant it guards,
 - that it guards the outcome and only sometimes catches a missing lock,
-- how the requests are held, and how often it failed with the guard removed
-  when it was written (the mutation check, e.g. "20 of 20").
+- how the requests are made to overlap: held, or by which slow step,
+- both counts from when it was written: how often it failed on the real
+  code and with the guard removed, e.g. "failed 0 of 20 with the lock, 20
+  of 20 without". The first shows it is not flaky, the second that it can
+  catch the bug.
 
 A unit spec cannot test a race: the stubbed store has no lock. Its comment
 names the e2e test that does.
