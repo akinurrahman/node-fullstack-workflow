@@ -173,9 +173,11 @@ built is `kit:frontend-architecture`.
 Required for every rule a lock guards, every unique field (two concurrent
 writes of one value answer one success and one 409, never a 500), and every
 action that can arrive twice at once. Assert exactly one winner, the loser's
-status and code, and the final stored state. Such a test cannot prove the
-lock exists, only that the outcome held this run; its comment says so. A
-unit spec never claims to cover a race. Detail in `references/races.md`.
+status and code, and the final stored state. A race test that still passes
+with its guard removed proves nothing: force the overlap until it fails.
+Such a test cannot prove the lock exists, only that the outcome held this
+run; its comment says so. A unit spec never claims to cover a race. Detail
+in `references/races.md`.
 
 **12. Browser tests only for what a real browser decides.**
 Cookies and the token refresh, a reload keeping the session, several tabs,

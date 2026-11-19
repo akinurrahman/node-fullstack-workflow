@@ -39,8 +39,8 @@ checked again.
 | A server field error (web) | stop mapping field errors onto fields                      |
 | A shared schema message    | change the message or move it to another path              |
 
-A race test is run several times with the guard removed; the report gives
-the count ("failed 20 of 20"), and the test's comment keeps it.
+A race test is run several times, on the real code and with the guard
+removed. Which counts to record, and where, is `races.md`.
 
 ## When it is required
 
@@ -48,7 +48,7 @@ the count ("failed 20 of 20"), and the test's comment keeps it.
 | -------------------------------------------------- | ---------------------- |
 | Access, id rows, validation, domain codes          | yes                    |
 | Stored state, nothing changed, side effects        | yes                    |
-| Races                                              | yes, with a run count  |
+| Races                                              | yes, with both counts  |
 | Web: request sent, field errors, invalidation, URL | yes                    |
 | Render, smoke, "the heading shows"                 | no                     |
 | A matrix block                                     | one row of each column |
@@ -62,7 +62,7 @@ Mutation checks
 - users.e2e: removed the admin role check from PATCH /users/:id -> "answers 403 for a USER token" failed
 - users.service.spec: dropped the last-admin check -> "refuses to demote the last active admin" failed
 - user-form-page.spec: stopped mapping field errors -> "puts EMAIL_TAKEN under the email field" failed
-- race: removed the transaction -> "lets exactly one demotion through" failed 20 of 20
+- race: removed the transaction -> "lets exactly one demotion through" failed 0 of 20 with it, 20 of 20 without
 ```
 
 One line per rule, not per test run. A check you skipped is listed with the
