@@ -9,7 +9,7 @@ strict a request schema is, and what a field error looks like, is
 | Lives in `@<scope>/shared`                              | Lives in the api                            |
 | ------------------------------------------------------- | ------------------------------------------- |
 | request schemas (body, query, params), response schemas | `createZodDto` classes in `<module>.dto.ts` |
-| inferred types (`CreateProjectInput`, `PublicProject`)  | `paginate()`, `PaginatedResult`             |
+| inferred types (`CreateProjectValues`, `PublicProject`) | `paginate()`, `PaginatedResult`             |
 | `<DOMAIN>_ERROR_CODES`, max lengths, enums              | anything touching Nest, Prisma or Express   |
 
 The shared package imports only `zod`. Everything public goes through its
@@ -56,6 +56,22 @@ One line per class, nothing else. The response DTO exists for the docs only.
 The global `ZodValidationPipe` (`APP_PIPE` in `app.module.ts`) parses each of
 them. The handler receives the parsed output, defaults and transforms
 applied.
+
+## Input and output types
+
+A schema with a default or a transform has two types: what a client sends
+(`z.input`) and what the parse returns (`z.output`). The shared package
+exports both for each request body (`example-shared.md`).
+
+| Side | Takes                             | Why                                 |
+| ---- | --------------------------------- | ----------------------------------- |
+| Api  | `z.output`: `CreateProjectValues` | the pipe hands it the parsed value  |
+| Web  | `z.input`: `CreateProjectInput`   | it builds the body before any parse |
+
+Query types are already output types (`ListProjectsQuery`, a `z.infer`).
+Typing a service with the input type compiles while the two match, and
+breaks silently once a field gains a default: the service sees the field
+as optional when the pipe always fills it.
 
 ## Every endpoint is documented
 

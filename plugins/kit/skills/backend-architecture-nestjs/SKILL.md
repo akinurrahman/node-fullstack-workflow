@@ -185,8 +185,9 @@ class-validator, no pipe per route.
 
 A list with no filters uses `paginationQuerySchema` as is; the first filter
 turns it into `paginationQuerySchema.extend({ ... })`. Never an empty
-`extend({})`. Service methods take the shared inferred types
-(`CreateProjectInput`), never the DTO classes.
+`extend({})`. Service methods take the shared `z.output` types
+(`CreateProjectValues`), never the `z.input` ones and never the DTO
+classes. Detail in `references/dtos.md`.
 
 Every endpoint carries its Swagger response decorators. Which ones, and how,
 is in `references/dtos.md`.

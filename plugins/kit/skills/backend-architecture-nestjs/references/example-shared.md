@@ -91,9 +91,14 @@ export type ProjectErrorCode =
 export type ProjectStatus = z.infer<typeof projectStatusSchema>;
 export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
 export type CreateProjectInput = z.input<typeof createProjectSchema>;
+export type CreateProjectValues = z.output<typeof createProjectSchema>;
 export type UpdateProjectInput = z.input<typeof updateProjectSchema>;
+export type UpdateProjectValues = z.output<typeof updateProjectSchema>;
 export type PublicProject = z.infer<typeof publicProjectSchema>;
 ```
+
+Each request body exports a `<Name>Input` and a `<Name>Values` type. Which
+side takes which is `dtos.md`, Input and output types.
 
 The list query extends `paginationQuerySchema`, so `page` and `limit` come
 with their defaults and caps, and the parsed query fits the repository's
