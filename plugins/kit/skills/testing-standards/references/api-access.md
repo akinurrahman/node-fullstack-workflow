@@ -47,6 +47,7 @@ so the id is the only thing wrong.
 | Unknown      | a well-formed UUID no row has                    | 404 `<ENTITY>_NOT_FOUND`, exact body once         |
 | Uppercase    | an existing id in uppercase                      | same answer as the lowercase id                   |
 | Self by case | the caller's own id in uppercase, on a self rule | the self rule still fires                         |
+| Id and body  | `not-a-uuid` and a bad body, on a route with one | as `kit:api-conventions`, `status-codes.md`, says |
 
 The unknown-id row uses the domain code, never `NOT_FOUND`, which means no
 such route. The uppercase row runs once per route kind (one read, one

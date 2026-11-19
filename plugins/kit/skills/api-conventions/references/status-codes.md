@@ -84,9 +84,18 @@ A client sees the first failure only, in this order:
 3. No route: 404 `NOT_FOUND`.
 4. Rate limit: 429.
 5. Token: 401. Role: 403 `FORBIDDEN`.
-6. Path, query and body schemas: 400 `VALIDATION_FAILED`.
-7. Domain rules: 404, 403, 409 with domain codes.
+6. Body schema: 400 `VALIDATION_FAILED`.
+7. Path and query schemas: 400 `VALIDATION_FAILED`.
+8. Domain rules: 404, 403, 409 with domain codes.
 
 So an unauthenticated request to a real route with an invalid body is a 401,
 never a 400, and validation never tells an anonymous caller what a route
 expects.
+
+### A bad id and a bad body
+
+A request whose path id and body both fail (`PATCH /api/projects/not-a-uuid`
+with an unknown key) answers 400 with the body's field errors only. There is
+no `id` entry: the errors of one response come from one source, never
+merged. Once the body is fixed, the same request answers 400 on `id`. A web
+fake answers in the same order, so the web sees what the api would send.
