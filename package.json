@@ -1,0 +1,12 @@
+{
+  "name": "node-fullstack-workflow",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.18.0",
+  "scripts": {
+    "format:check": "prettier --check --config .prettierrc ."
+  },
+  "devDependencies": {
+    "prettier": "3.9.9"
+  }
+}
