@@ -107,5 +107,11 @@ say so; if they do not, add above it:
 Working tree: dirty. This review covers committed work only.
 ```
 
-Then stop. Offer nothing beyond the report. The user asks for fixes if they
-want them.
+When the verdict is `approve`, end with this line below the report:
+
+```
+Next: /kit:pr runs verify, reviews the branch again, pushes it and opens the PR.
+```
+
+Then stop. Offer nothing else beyond the report. The user asks for fixes if
+they want them.

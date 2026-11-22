@@ -58,6 +58,14 @@ node-fullstack-workflow/
       .claude-plugin/
         plugin.json           # plugin manifest
       skills/                 # invokable as /kit:<skill>
+        api-conventions/
+        backend-architecture-nestjs/
+        frontend-architecture/
+        git-conventions/
+        pr/
+        review/
+        testing-standards/
+        verify/
       agents/                 # subagents, named kit:<agent>
       recipes/                # tool-agnostic recipes
 ```
