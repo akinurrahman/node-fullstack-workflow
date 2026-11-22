@@ -216,7 +216,7 @@ domain code when the rule is specific. Detail in
 ## Contract checks
 
 Run these before reporting complete. The general gate (typecheck, lint,
-tests, format) is `kit:definition-of-done`.
+tests, format) is `kit:verify`.
 
 1. Every success body is `{ data }` or `{ data, pagination }`; no-body is 204
 2. Status per endpoint kind matches rule 2; an idempotent action answers 200

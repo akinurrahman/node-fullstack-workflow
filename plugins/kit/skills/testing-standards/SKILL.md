@@ -218,7 +218,7 @@ with a comment saying why. Never commit `.only` or `.skip`.
 ## Test checks
 
 Run these before reporting complete. The general gate (typecheck, lint,
-tests, format) is `kit:definition-of-done`.
+tests, format) is `kit:verify`.
 
 1. Every new route has its access rows, every `:id` route its id rows, and
    an owner-scoped resource its ownership rows

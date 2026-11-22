@@ -24,7 +24,7 @@ with `references/example-overview.md`.
    Adding a query? Read `references/example-api.md`. Building a full entity?
    Read all of them, starting with `references/example-overview.md`.
 3. Build only what the request asks for, following the build order at the end.
-4. Run the definition-of-done list, right after the rules, before reporting
+4. Run the architecture checks, right after the rules, before reporting
    complete.
 
 ### Which reference to read
@@ -259,32 +259,31 @@ loaded. A failed refetch keeps the data on screen, and the `QueryCache` in
 A component that receives data as props renders it. It does not check
 `isLoading` on data it was handed.
 
-## Definition of done
+## Architecture checks
 
-1. `pnpm typecheck` passes
-2. `pnpm lint` (Oxlint) and `pnpm format:check` pass, including the feature
-   import rule
-3. `pnpm test` passes, with the cases `kit:testing-standards` requires for
-   the new behaviour
-4. Every `apiCall` and `apiCallPaginated` has an explicit generic
-5. Every GET threads `signal`; no mutation does
-6. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
+Run these before reporting complete. The general gate (typecheck, lint,
+tests, format) is `kit:verify`.
+
+1. New behaviour has the cases `kit:testing-standards` requires
+2. Every `apiCall` and `apiCallPaginated` has an explicit generic
+3. Every GET threads `signal`; no mutation does
+4. No enum values typed by hand outside `*.lookup.ts`, and no param cast to an
    enum union
-7. Every filter key has an entry in the spec, and the spec is at module scope
-8. No raw colors, only semantic tokens
-9. No wrapper component that only forwards props
-10. No file created that the request did not need
-11. No comment restates what the code does, no doc block sits above a
-    self-explanatory export, and no placeholder comments from this guide
-    survived
-12. No em dashes in code, comments, copy, or your summary
-13. `index.ts` exports only what another feature or the router actually needs
-14. The done check in `references/routing-react-router.md` passes
-15. Any new piece in `components/ui` or `systems` has its section on the theme
+5. Every filter key has an entry in the spec, and the spec is at module scope
+6. No raw colors, only semantic tokens
+7. No wrapper component that only forwards props
+8. No file created that the request did not need
+9. No comment restates what the code does, no doc block sits above a
+   self-explanatory export, and no placeholder comments from this guide
+   survived
+10. No em dashes in code, comments, copy, or your summary
+11. `index.ts` exports only what another feature or the router actually needs
+12. The done check in `references/routing-react-router.md` passes
+13. Any new piece in `components/ui` or `systems` has its section on the theme
     preview page
-16. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
+14. Every form `onSubmit` returns or awaits `mutation.mutateAsync(values)`,
     never `mutation.mutate(values)`
-17. `lib/` and `systems/` import nothing from `features/`
+15. `lib/` and `systems/` import nothing from `features/`
 
 ## Import direction
 
@@ -660,4 +659,4 @@ For each entity, skipping anything the request does not need:
 10. Routes, `index.ts` and `app/router.ts`: steps 10 to 12 are in
     `references/routing-react-router.md`. Then check it works in the
     browser, add what `kit:testing-standards` requires (a new page joins the
-    browser render check), and run the definition-of-done list.
+    browser render check), and run the architecture checks.

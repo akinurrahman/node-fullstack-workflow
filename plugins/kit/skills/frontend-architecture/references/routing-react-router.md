@@ -88,11 +88,11 @@ These are steps 10 to 12 of the build order in `SKILL.md`.
 11. `index.ts` exporting the route array, plus anything another feature needs.
 12. Spread the routes into `pages` (or `barePages`) in `app/router.ts`. Add
     the nav group to `NAV_GROUPS` only when the group is new. Then check it
-    works in the browser and run the definition-of-done list.
+    works in the browser and run the architecture checks.
 
 ## Done check
 
-This is item 14 of the definition of done in `SKILL.md`.
+This is item 12 of the architecture checks in `SKILL.md`.
 
-14. The route array is spread into `pages` or `barePages` in `app/router.ts`,
+12. The route array is spread into `pages` or `barePages` in `app/router.ts`,
     and every `nav.group` is in `NAV_GROUPS`

@@ -24,7 +24,7 @@ This skill is the inside of the api. It does not cover:
   request schema is. That is `kit:api-conventions`.
 - What to test and which cases are required. That is `kit:testing-standards`.
 - Commits, and the gate before reporting done: `kit:git-conventions`,
-  `kit:definition-of-done`.
+  `kit:verify`.
 - Prisma CLI commands and the Prisma Client API. Those are tied to the
   installed Prisma version and live in the template's own `prisma-cli` and
   `prisma-client-api` skills under `.claude/skills/`.
@@ -269,7 +269,7 @@ test is `kit:testing-standards`.
 ## Architecture checks
 
 Run these before reporting complete. The general gate (typecheck, lint,
-tests, format) is `kit:definition-of-done`.
+tests, format) is `kit:verify`.
 
 1. No `PrismaService` outside a `*.repository.ts` (and `database/`)
 2. Outside repositories, `database/`, `common/filters` and `config/`, imports
