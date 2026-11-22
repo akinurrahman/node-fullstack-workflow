@@ -58,6 +58,7 @@ node-fullstack-workflow/
       .claude-plugin/
         plugin.json           # plugin manifest
       skills/                 # invokable as /kit:<skill>
+      agents/                 # subagents, named kit:<agent>
       recipes/                # tool-agnostic recipes
 ```
 
