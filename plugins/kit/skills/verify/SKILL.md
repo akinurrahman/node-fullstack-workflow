@@ -20,6 +20,7 @@ This skill is the gate. It does not cover:
   repeat them.
 - Which test cases a change needs. That is `kit:testing-standards`.
 - Commits. That is `kit:git-conventions`.
+- Reviewing a change before it merges. That is `kit:review`.
 
 ## How to use this skill
 
