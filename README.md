@@ -60,6 +60,7 @@ node-fullstack-workflow/
       skills/                 # invokable as /kit:<skill>
         api-conventions/
         backend-architecture-nestjs/
+        fix/
         frontend-architecture/
         git-conventions/
         pr/
